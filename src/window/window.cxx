@@ -1,6 +1,7 @@
 module;
 #include "svl_config.hxx"
 #include <SDL3/SDL.h>
+#include <spdlog/spdlog.h>
 module svl.window;
 
 namespace svl
@@ -18,7 +19,9 @@ window::window(std::string   title,
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO))
     {
-        std::cout << "Cant init SDL: " << SDL_GetError() << std::endl;
+        spdlog::error("Cant init SDL: {}", SDL_GetError());
     }
 }
+window::window(const window& wnd) {}
+window::~window() {}
 } // namespace svl

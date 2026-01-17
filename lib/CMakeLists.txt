@@ -15,3 +15,9 @@ find_package(Vulkan REQUIRED GLOBAL)
 # set(VULKAN_HPP_RUN_GENERATOR ON)
 # set(VULKAN_HPP_BUILD_CXX_MODULE ON)
 # add_subdirectory(Vulkan-Hpp EXCLUDE_FROM_ALL SYSTEM)
+
+find_package(spdlog REQUIRED GLOBAL)
+if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
+    # Not tested
+    add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
+endif()

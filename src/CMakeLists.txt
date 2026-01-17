@@ -1,7 +1,7 @@
 add_subdirectory(window)
 add_subdirectory(render)
 
-add_library(svl SHARED)
+add_library(svl OBJECT)
 target_sources(
     svl
     PUBLIC FILE_SET svl_module TYPE CXX_MODULES FILES svl.cxxm
