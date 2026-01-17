@@ -1,5 +1,5 @@
 #pragma once
-import std;
+#include <string>
 
 namespace svl::version
 {
@@ -13,6 +13,14 @@ constexpr std::string version = "@PROJECT_VERSION@";
 
 namespace svl::constants
 {
+    namespace appdata
+    {
+constexpr std::string identifier = "com.ygr.svl";
+constexpr std::string creator = "Ygrik2003";
+constexpr std::string copyright = "";
+const     std::string url = "https://github.com/Ygrik2003/sdl-vulkan-learn.git";
+constexpr std::string type = "Game";
+    }
 #if defined(SVL_DEBUG)
 constexpr bool is_debug_build = true;
 #else

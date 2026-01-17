@@ -2,6 +2,7 @@ module;
 #include <SDL3/SDL.h>
 export module svl.window;
 
+import svl.device;
 import std;
 
 export namespace svl
@@ -47,11 +48,11 @@ public:
     ~window();
 
     void create();
-    void close();
+    void destroy();
     void poll_event();
 
-    [[nodiscard]] inline const bool is_running() const { return running; }
-    [[nodiscard]] inline const bool is_fullscreen() const
+    [[nodiscard]] inline bool is_running() const { return running; }
+    [[nodiscard]] inline bool is_fullscreen() const
     {
         return state & static_cast<flags>(flag::FULLSCREEN);
     }
