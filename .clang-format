@@ -81,6 +81,7 @@ SpaceAfterCStyleCast: false
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
+SpaceBeforeCpp11BracedList: true
 SpacesBeforeTrailingComments: 1
 SpacesInAngles:  false
 SpacesInContainerLiterals: true

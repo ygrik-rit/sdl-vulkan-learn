@@ -1,30 +1,12 @@
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/version.hxx.in
-    ${CMAKE_CURRENT_BINARY_DIR}/version.hxx
-    @ONLY
-)
+add_subdirectory(window)
+add_subdirectory(render)
 
-add_library(template)
-
+add_library(svl SHARED)
 target_sources(
-    template
-    PUBLIC FILE_SET template_module TYPE CXX_MODULES FILES template.cxxm
-    PRIVATE template.cxx
+    svl
+    PUBLIC FILE_SET svl_module TYPE CXX_MODULES FILES svl.cxxm
+    PRIVATE svl.cxx
 )
+target_link_libraries(svl PRIVATE svl::base svl::window svl::render)
 
-target_include_directories(
-    template
-    PUBLIC
-        $<BUILD_INTERFACE:
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        # for include version.hxx
-        ${CMAKE_CURRENT_BINARY_DIR}
-        >
-        $<INSTALL_INTERFACE:include>
-)
-target_link_libraries(
-    template
-    PRIVATE SDL3::SDL3-shared Vulkan::Vulkan template::base
-)
-
-add_library(template::template ALIAS template)
+add_library(svl::svl ALIAS svl)

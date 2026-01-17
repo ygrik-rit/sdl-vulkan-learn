@@ -1,5 +1,5 @@
 option(
-    TEMPLATE_DEBUG_3RDPARTY
+    SVL_DEBUG_3RDPARTY
     "Force build 3rdparty libs localy for comfortable debugging"
     OFF
 )

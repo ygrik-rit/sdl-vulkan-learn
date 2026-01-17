@@ -32,5 +32,5 @@ jobs:
     # - name: Run Android build on ${{ matrix.os }}
     #   working-directory: ${{ github.workspace }}/android-project
     #   run: >
-    #     ${{ github.workspace }}/android-project/gradlew assembleTemplate${{ matrix.build_type }}
+    #     ${{ github.workspace }}/android-project/gradlew assembleSvl${{ matrix.build_type }}
         

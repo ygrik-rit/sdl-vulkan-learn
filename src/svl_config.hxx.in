@@ -1,0 +1,26 @@
+#pragma once
+import std;
+
+namespace svl::version
+{
+constexpr std::string major = "@PROJECT_VERSION_MAJOR@";
+constexpr std::string minor = "@PROJECT_VERSION_MINOR@";
+constexpr std::string patch = "@PROJECT_VERSION_PATCH@";
+constexpr std::string tweak = "@PROJECT_VERSION_TWEAK@";
+
+constexpr std::string version = "@PROJECT_VERSION@";
+} // namespace svl::version
+
+namespace svl::constants
+{
+#if defined(SVL_DEBUG)
+constexpr bool is_debug_build = true;
+#else
+constexpr bool is_debug_build = false;
+#endif
+#if defined(SVL_LINUX)
+constexpr bool is_linux_build = true;
+#else
+constexpr bool is_linux_build = false;
+#endif
+} // namespace svl::constants

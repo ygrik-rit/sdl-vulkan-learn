@@ -1,1 +1,1 @@
-# Template
+# sdl-vulkan-learn

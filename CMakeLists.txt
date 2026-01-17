@@ -13,7 +13,7 @@ set(CMAKE_CXX_MODULE_STD 1)
 add_link_options(-fuse-ld=mold)
 
 project(
-    template
+    sdl-vulkan-learn
     VERSION 0.0.1.0
     DESCRIPTION "blah blah blah"
     HOMEPAGE_URL "http://localhost"
@@ -24,13 +24,20 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(options REQUIRED)
 
-add_library(template_base INTERFACE)
-target_compile_definitions(
-    template_base
-    INTERFACE $<$<PLATFORM_ID:Linux>:TEMPLATE_LINUX>
+configure_file(
+    ${CMAKE_SOURCE_DIR}/src/svl_config.hxx.in
+    ${CMAKE_BINARY_DIR}/svl_config.hxx
+    @ONLY
 )
-target_compile_options(template_base INTERFACE -Werror -Wpedantic -Wall)
-add_library(template::base ALIAS template_base)
+
+add_library(svl_base INTERFACE)
+target_compile_definitions(
+    svl_base
+    INTERFACE $<$<CONFIG:Debug>:SVL_DEBUG> $<$<PLATFORM_ID:Linux>:SVL_LINUX>
+)
+target_compile_options(svl_base INTERFACE -Werror -Wpedantic -Wall)
+target_include_directories(svl_base INTERFACE ${CMAKE_BINARY_DIR}) # svl_config.hxx
+add_library(svl::base ALIAS svl_base)
 
 add_subdirectory(lib)
 add_subdirectory(src)
