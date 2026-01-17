@@ -16,6 +16,17 @@ find_package(Vulkan REQUIRED GLOBAL)
 # set(VULKAN_HPP_BUILD_CXX_MODULE ON)
 # add_subdirectory(Vulkan-Hpp EXCLUDE_FROM_ALL SYSTEM)
 
+# TODO: Add true defines and do not forget X11
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(VOLK_STATIC_DEFINES VK_USE_PLATFORM_WAYLAND_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(VOLK_STATIC_DEFINES VK_USE_PLATFORM_WIN32_KHR)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+endif()
+add_subdirectory(volk)
+
 find_package(spdlog REQUIRED GLOBAL)
 if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
     # Not tested

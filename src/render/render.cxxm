@@ -1,2 +1,11 @@
 module;
 export module svl.render;
+
+namespace svl
+{
+class render
+{
+public:
+    render();
+};
+} // namespace svl
