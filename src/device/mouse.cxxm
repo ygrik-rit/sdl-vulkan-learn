@@ -2,6 +2,8 @@ module;
 #include <SDL3/SDL_events.h>
 export module svl.device:mouse;
 
+import svl.device.control;
+
 export namespace svl::device::mouse
 {
 class controller

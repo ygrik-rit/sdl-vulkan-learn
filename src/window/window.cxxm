@@ -6,9 +6,9 @@ export module svl.window;
 import svl.device;
 import std;
 
-export namespace svl
+export namespace svl::window
 {
-class window
+class context
 {
 public:
     using flags = std::uint64_t;
@@ -39,14 +39,14 @@ public:
         NOT_FOCUSABLE       = SDL_WINDOW_NOT_FOCUSABLE,
     };
 
-    explicit window(std::string   title,
-                    std::int32_t  width,
-                    std::int32_t  height,
-                    window::flags state);
+    explicit context(std::string    title,
+                     std::int32_t   width,
+                     std::int32_t   height,
+                     context::flags state);
     // TODO: Add posibility to create 2 or more windows with diff render
     // context, but common app logic and controls
-    window(const window& wnd);
-    ~window();
+    context(const context& wnd);
+    ~context();
 
     void create();
     void destroy();
@@ -59,13 +59,13 @@ public:
     }
 
 private:
-    std::string   title {};
-    std::int32_t  width {};
-    std::int32_t  height {};
-    window::flags state {};
+    std::string    title {};
+    std::int32_t   width {};
+    std::int32_t   height {};
+    context::flags state {};
 
     SDL_Window* wnd {};
 
     bool running {};
 };
-} // namespace svl
+} // namespace svl::window

@@ -17,7 +17,7 @@ export namespace svl::render
 class context
 {
 public:
-    context(const window&                   wnd,
+    context(const context&                  wnd,
             const std::vector<std::string>& requested_extensions)
     {
         std::uint32_t instance_layer_count { 0 };

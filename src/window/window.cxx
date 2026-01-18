@@ -8,12 +8,12 @@ module svl.window;
 
 import svl.device;
 
-namespace svl
+namespace svl::window
 {
-window::window(std::string   title,
-               std::int32_t  width,
-               std::int32_t  height,
-               window::flags state)
+context::context(std::string    title,
+                 std::int32_t   width,
+                 std::int32_t   height,
+                 context::flags state)
     : title(std::move(title))
     , width(width)
     , height(height)
@@ -42,8 +42,8 @@ window::window(std::string   title,
         throw std::runtime_error("Window construct error");
     }
 }
-window::window(const window& wnd) {}
-window::~window()
+context::context(const context& wnd) {}
+context::~context()
 {
     if (running)
     {
@@ -53,7 +53,7 @@ window::~window()
     SDL_Quit();
 }
 
-void window::create()
+void context::create()
 {
     if (running)
     {
@@ -68,7 +68,7 @@ void window::create()
     }
     running = true;
 }
-void window::destroy()
+void context::destroy()
 {
     if (running)
     {
@@ -76,7 +76,7 @@ void window::destroy()
         running = false;
     }
 }
-void window::poll_event()
+void context::poll_event()
 {
     static SDL_Event event;
 
@@ -92,4 +92,4 @@ void window::poll_event()
     }
 }
 
-} // namespace svl
+} // namespace svl::window

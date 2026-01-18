@@ -1,8 +1,6 @@
 module;
 #include <SDL3/SDL.h>
 
-#include "detail/keycode.hxx"
-#include "detail/mouse_button.hxx"
 export module svl.device;
 
 import std;
