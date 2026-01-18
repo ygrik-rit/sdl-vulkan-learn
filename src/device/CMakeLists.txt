@@ -7,5 +7,5 @@ target_sources(
         TYPE CXX_MODULES
         FILES device.cxxm mouse.cxxm keyboard.cxxm
 )
-target_link_libraries(window PRIVATE SDL3::SDL3-shared svl::base)
+target_link_libraries(device PRIVATE SDL3::SDL3-shared svl::base)
 add_library(svl::device ALIAS device)

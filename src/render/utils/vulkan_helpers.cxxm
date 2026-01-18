@@ -1,0 +1,28 @@
+module;
+#include <cassert>
+
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan.h>
+export module svl.render:utils;
+
+import std;
+
+export namespace svl::render::utils
+{
+inline VkResult vk_check(
+    VkResult                    result,
+    const std::source_location& location = std::source_location::current())
+{
+    if (result != VK_SUCCESS)
+    {
+        spdlog::error("Error calling function {} at {}:{}. Result is {}",
+                      location.function_name(),
+                      location.file_name(),
+                      location.line(),
+                      // TODO: Wait to reflection
+                      static_cast<int>(result));
+    }
+    return result;
+}
+
+} // namespace svl::render::utils

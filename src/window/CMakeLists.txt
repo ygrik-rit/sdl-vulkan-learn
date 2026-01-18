@@ -1,7 +1,5 @@
 add_library(window STATIC)
 
-add_subdirectory(device)
-
 target_sources(
     window
     PUBLIC FILE_SET window_module TYPE CXX_MODULES FILES window.cxxm

@@ -7,6 +7,9 @@ target_sources(
     PUBLIC FILE_SET render_module TYPE CXX_MODULES FILES render.cxxm
 )
 
-target_link_libraries(render PRIVATE SDL3::SDL3-shared svl::base)
+target_link_libraries(
+    render
+    PRIVATE Vulkan::Vulkan svl::window svl::utils svl::base
+)
 
 add_library(svl::render ALIAS render)

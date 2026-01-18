@@ -1,5 +1,7 @@
 module;
 #include <cstdlib>
+
+#include "svl_config.hxx"
 export module svl;
 import svl.window;
 
@@ -8,7 +10,7 @@ export namespace svl
 int run()
 {
     using namespace svl;
-    window core_window("SDL-Vulkan Learn", 480, 360, 0);
+    window core_window(constants::appdata::title, 480, 360, 0);
 
     core_window.create();
 

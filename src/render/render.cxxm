@@ -1,11 +1,130 @@
 module;
-export module svl.render;
+#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_wayland.h>
 
-namespace svl
+#include <SDL3/SDL.h>
+
+#include "svl_config.hxx"
+export module svl.render;
+import :utils;
+
+import svl.window;
+
+import std;
+
+export namespace svl::render
 {
-class render
+class context
 {
 public:
-    render();
+    context(const window&                   wnd,
+            const std::vector<std::string>& requested_extensions)
+    {
+        std::uint32_t instance_layer_count { 0 };
+        utils::vk_check(
+            vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr));
+        std::vector<VkLayerProperties> layers(instance_layer_count);
+        utils::vk_check(vkEnumerateInstanceLayerProperties(
+            &instance_layer_count, layers.data()));
+
+        std::vector<std::string> available_layers;
+        std::ranges::transform(layers,
+                               std::back_inserter(available_layers),
+                               [](const VkLayerProperties& properties)
+                               { return properties.layerName; });
+
+        uint32_t extensions_count { 0 };
+        utils::vk_check(vkEnumerateInstanceExtensionProperties(
+            nullptr, &extensions_count, nullptr));
+        std::vector<VkExtensionProperties> extension_properties(
+            extensions_count);
+        utils::vk_check(vkEnumerateInstanceExtensionProperties(
+            nullptr, &extensions_count, extension_properties.data()));
+        std::vector<std::string> available_extensions;
+        std::ranges::transform(extension_properties,
+                               std::back_inserter(available_extensions),
+                               [](const VkExtensionProperties& properties)
+                               { return properties.extensionName; });
+
+        const std::vector<std::string> requested_instance_layers = {
+            "VK_LAYER_KHRONOS_validation"
+        };
+        const std::vector<std::string> requested_instance_extensions = {
+
+            VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME,
+            VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+            VK_KHR_SURFACE_EXTENSION_NAME,
+        };
+
+        const auto enabled_instance_layers =
+            filter_extensions(available_layers, requested_instance_layers);
+        const auto enabled_instance_extensions = filter_extensions(
+            available_extensions, requested_instance_extensions);
+
+        std::vector<const char*> instance_extensions(
+            enabled_instance_extensions.size());
+        std::ranges::transform(enabled_instance_extensions,
+                               instance_extensions.begin(),
+                               std::mem_fn(&std::string::c_str));
+
+        std::vector<const char*> instance_layers(
+            enabled_instance_layers.size());
+        std::ranges::transform(enabled_instance_layers,
+                               instance_layers.begin(),
+                               std::mem_fn(&std::string::c_str));
+
+        const VkApplicationInfo app_info = {
+            .sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pApplicationName   = constants::appdata::title.c_str(),
+            .applicationVersion = VK_MAKE_VERSION(std::stoi(version::major),
+                                                  std::stoi(version::minor),
+                                                  std::stoi(version::patch)),
+            .apiVersion         = VK_API_VERSION_1_4,
+        };
+
+        const VkInstanceCreateInfo instance_info = {
+            .sType             = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+            .pApplicationInfo  = &app_info,
+            .enabledLayerCount = static_cast<uint32_t>(instance_layers.size()),
+            .ppEnabledLayerNames = instance_layers.data(),
+            .enabledExtensionCount =
+                static_cast<uint32_t>(instance_extensions.size()),
+            .ppEnabledExtensionNames = instance_extensions.data(),
+        };
+        VkInstance instance { VK_NULL_HANDLE };
+        utils::vk_check(vkCreateInstance(&instance_info, nullptr, &instance));
+
+        // const auto window = glfwGetWin32Window(glfwWindow);
+        SDL_PropertiesID props = SDL_GetWindowProperties(nullptr);
+        auto* display = static_cast<wl_display*>(SDL_GetPointerProperty(
+            props, SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, nullptr));
+        auto* surface = static_cast<wl_surface*>(SDL_GetPointerProperty(
+            props, SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, nullptr));
+        if (surface != nullptr && display != nullptr)
+        {
+            const VkWaylandSurfaceCreateInfoKHR ci = {
+                .sType   = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
+                .display = display,
+                .surface = surface,
+            };
+            utils::vk_check(
+                vkCreateWaylandSurfaceKHR(instance, &ci, nullptr, &vk_surface));
+        }
+    }
+
+private:
+    std::unordered_set<std::string> filter_extensions(
+        std::vector<std::string> available_extensions,
+        std::vector<std::string> requested_extensions)
+    {
+        std::ranges::sort(available_extensions);
+        std::ranges::sort(requested_extensions);
+        std::vector<std::string> result;
+        std::ranges::set_intersection(available_extensions,
+                                      requested_extensions,
+                                      std::back_inserter(result));
+        return { result.begin(), result.end() };
+    }
+    VkSurfaceKHR vk_surface;
 };
-} // namespace svl
+} // namespace svl::render

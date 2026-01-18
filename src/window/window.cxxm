@@ -1,5 +1,6 @@
 module;
 #include <SDL3/SDL.h>
+
 export module svl.window;
 
 import svl.device;
@@ -56,8 +57,6 @@ public:
     {
         return state & static_cast<flags>(flag::FULLSCREEN);
     }
-
-    friend class render;
 
 private:
     std::string   title {};
