@@ -2,7 +2,7 @@ module;
 #include <SDL3/SDL_events.h>
 export module svl.device:keyboard;
 
-import svl.device.control;
+export import svl.device.control;
 
 export namespace svl::device::keyboard
 {
