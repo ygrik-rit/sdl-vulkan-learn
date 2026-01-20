@@ -3,24 +3,24 @@
 
 namespace svl::version
 {
-constexpr std::string major = "@PROJECT_VERSION_MAJOR@";
-constexpr std::string minor = "@PROJECT_VERSION_MINOR@";
-constexpr std::string patch = "@PROJECT_VERSION_PATCH@";
-constexpr std::string tweak = "@PROJECT_VERSION_TWEAK@";
+const std::string major = "@PROJECT_VERSION_MAJOR@";
+const std::string minor = "@PROJECT_VERSION_MINOR@";
+const std::string patch = "@PROJECT_VERSION_PATCH@";
+const std::string tweak = "@PROJECT_VERSION_TWEAK@";
 
-constexpr std::string version = "@PROJECT_VERSION@";
+const std::string version = "@PROJECT_VERSION@";
 } // namespace svl::version
 
 namespace svl::constants
 {
 namespace appdata
 {
-const std::string     title      = "SDL-Vulkan Learn";
-constexpr std::string identifier = "com.ygr.svl";
-constexpr std::string creator    = "Ygrik2003";
-constexpr std::string copyright  = "";
-const std::string     url = "https://github.com/Ygrik2003/sdl-vulkan-learn.git";
-constexpr std::string type = "Game";
+const std::string title      = "SDL-Vulkan Learn";
+const std::string identifier = "com.ygr.svl";
+const std::string creator    = "Ygrik2003";
+const std::string copyright  = "";
+const std::string url  = "https://github.com/Ygrik2003/sdl-vulkan-learn.git";
+const std::string type = "Game";
 } // namespace appdata
 #if defined(SVL_DEBUG)
 constexpr bool is_debug_build = true;

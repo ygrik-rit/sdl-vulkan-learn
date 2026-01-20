@@ -1,16 +1,17 @@
 module;
 #include <cstdlib>
 
+#include "platform/window/window.hxx"
 #include "svl_config.hxx"
 export module svl;
-import svl.platform.window;
 
 export namespace svl
 {
 int run()
 {
     using namespace svl;
-    window::context core_window(constants::appdata::title, 480, 360, 0);
+    platform::window::context core_window(
+        constants::appdata::title, 480, 360, 0);
 
     core_window.create();
 
