@@ -1,0 +1,144 @@
+module;
+#include <SDL3/SDL.h>
+#include <spdlog/spdlog.h>
+
+#include "svl_config.hxx"
+export module svl.platform.window;
+
+import std;
+
+export namespace svl::platform::window
+{
+class context
+{
+public:
+    using flags = std::uint64_t;
+    enum class flag : flags
+    {
+        FULLSCREEN          = SDL_WINDOW_FULLSCREEN,
+        OCCLUDED            = SDL_WINDOW_OCCLUDED,
+        HIDDEN              = SDL_WINDOW_HIDDEN,
+        BORDERLESS          = SDL_WINDOW_BORDERLESS,
+        RESIZABLE           = SDL_WINDOW_RESIZABLE,
+        MINIMIZED           = SDL_WINDOW_MINIMIZED,
+        MAXIMIZED           = SDL_WINDOW_MAXIMIZED,
+        MOUSE_GRABBED       = SDL_WINDOW_MOUSE_GRABBED,
+        INPUT_FOCUS         = SDL_WINDOW_INPUT_FOCUS,
+        MOUSE_FOCUS         = SDL_WINDOW_MOUSE_FOCUS,
+        EXTERNAL            = SDL_WINDOW_EXTERNAL,
+        MODAL               = SDL_WINDOW_MODAL,
+        HIGH_PIXEL_DENSITY  = SDL_WINDOW_HIGH_PIXEL_DENSITY,
+        MOUSE_CAPTURE       = SDL_WINDOW_MOUSE_CAPTURE,
+        MOUSE_RELATIVE_MODE = SDL_WINDOW_MOUSE_RELATIVE_MODE,
+        ALWAYS_ON_TOP       = SDL_WINDOW_ALWAYS_ON_TOP,
+        UTILITY             = SDL_WINDOW_UTILITY,
+        TOOLTIP             = SDL_WINDOW_TOOLTIP,
+        POPUP_MENU          = SDL_WINDOW_POPUP_MENU,
+        KEYBOARD_GRABBED    = SDL_WINDOW_KEYBOARD_GRABBED,
+        FILL_DOCUMENT       = SDL_WINDOW_FILL_DOCUMENT,
+        TRANSPARENT         = SDL_WINDOW_TRANSPARENT,
+        NOT_FOCUSABLE       = SDL_WINDOW_NOT_FOCUSABLE,
+    };
+
+    explicit context(std::string    title,
+                     std::int32_t   width,
+                     std::int32_t   height,
+                     context::flags state)
+    {
+        title = std::format("{} [{}]", title, svl::version::version);
+
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_NAME_STRING,
+                                   title.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_VERSION_STRING,
+                                   svl::version::version.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_IDENTIFIER_STRING,
+                                   svl::constants::appdata::identifier.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING,
+                                   svl::constants::appdata::creator.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
+                                   svl::constants::appdata::copyright.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING,
+                                   svl::constants::appdata::url.c_str());
+        SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING,
+                                   svl::constants::appdata::type.c_str());
+
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO))
+        {
+            spdlog::error("Cant init SDL: {}", SDL_GetError());
+            throw std::runtime_error("Window construct error");
+        }
+    }
+    // TODO: Add posibility to create 2 or more windows with diff render
+    // context, but common app logic and controls
+    context(const context& wnd) {}
+    ~context()
+    {
+        if (running)
+        {
+            SDL_DestroyWindow(wnd);
+            running = false;
+        }
+        SDL_Quit();
+    }
+
+    void create()
+    {
+        if (running)
+        {
+            spdlog::warn("Window exist. Repeated call of {} ignored.",
+                         std::source_location::current().function_name());
+            return;
+        }
+
+        wnd = SDL_CreateWindow(title.c_str(), width, height, state);
+        if (!wnd)
+        {
+            spdlog::error("Cant create SDL Window: {}", SDL_GetError());
+            throw std::runtime_error("Window create error");
+        }
+        running = true;
+    }
+    void destroy()
+    {
+        if (!running)
+        {
+            return;
+        }
+        SDL_DestroyWindow(wnd);
+        running = false;
+    }
+    void poll_event()
+    {
+        static SDL_Event event;
+
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_EVENT_QUIT) [[unlikely]]
+            {
+                destroy();
+                break;
+            }
+            // device::mouse::process_event(event);
+            // device::keyboard::process_event(event);
+        }
+    }
+
+    [[nodiscard]] inline bool is_running() const { return running; }
+    [[nodiscard]] inline bool is_fullscreen() const
+    {
+        return state & static_cast<flags>(flag::FULLSCREEN);
+    }
+
+    [[nodiscard]] inline void* get_native_sdl_window() const { return wnd; }
+
+private:
+    std::string    title {};
+    std::int32_t   width {};
+    std::int32_t   height {};
+    context::flags state {};
+
+    SDL_Window* wnd {};
+
+    bool running {};
+};
+} // namespace svl::platform::window

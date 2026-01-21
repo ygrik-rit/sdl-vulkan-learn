@@ -23,7 +23,7 @@ add_link_options(-fuse-ld=mold)
 
 project(
     sdl-vulkan-learn
-    VERSION 0.0.2.0
+    VERSION 0.0.3.0
     DESCRIPTION "blah blah blah"
     HOMEPAGE_URL "http://localhost"
     LANGUAGES C CXX

@@ -1,9 +1,10 @@
 module;
 #include <cstdlib>
 
-#include "platform/window/window.hxx"
 #include "svl_config.hxx"
 export module svl;
+
+export import svl.platform;
 
 export namespace svl
 {
