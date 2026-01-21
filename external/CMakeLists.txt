@@ -6,7 +6,13 @@ set(SDL_X11 ${SVL_X11})
 set(SDL_DISABLE_INSTALL ON)
 add_subdirectory(SDL EXCLUDE_FROM_ALL SYSTEM)
 
+set(VULKAN_HPP_BUILD_WITH_LOCAL_VULKAN_HPP ON)
+set(VULKAN_HPP_NO_CONSTRUCTORS ON)
 add_subdirectory(Vulkan-Hpp EXCLUDE_FROM_ALL SYSTEM)
+target_compile_definitions(
+    VulkanHppModule
+    PRIVATE VULKAN_HPP_CXX_MODULE_EXPERIMENTAL_WARNING
+)
 
 set(VOLK_NAMESPACE ON)
 set(VOLK_STATIC_DEFINES)
@@ -26,7 +32,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     list(APPEND VOLK_STATIC_DEFINES VK_USE_PLATFORM_IOS_MVK)
 endif()
-add_subdirectory(volk)
+# add_subdirectory(volk)
 
 if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
     # Not tested

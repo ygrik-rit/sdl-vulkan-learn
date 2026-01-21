@@ -45,7 +45,10 @@ target_compile_definitions(
     INTERFACE $<$<CONFIG:Debug>:SVL_DEBUG> $<$<PLATFORM_ID:Linux>:SVL_LINUX>
 )
 target_compile_options(svl_base INTERFACE -Werror -Wpedantic -Wall)
-target_include_directories(svl_base INTERFACE ${CMAKE_BINARY_DIR}) # svl_config.hxx
+target_include_directories(
+    svl_base
+    INTERFACE ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/src
+) # svl_config.hxx
 add_library(svl::base ALIAS svl_base)
 
 add_subdirectory(external)

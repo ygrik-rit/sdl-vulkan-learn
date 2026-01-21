@@ -1,15 +1,18 @@
 module;
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include <spdlog/spdlog.h>
+#include <vulkan/vulkan_hpp_macros.hpp>
 
 #include "svl_config.hxx"
 export module svl.platform.window;
 
 import std;
+import vulkan;
 
 export namespace svl::platform::window
 {
-class context
+class context final
 {
 public:
     using flags = std::uint64_t;
@@ -73,11 +76,7 @@ public:
     context(const context& wnd) {}
     ~context()
     {
-        if (running)
-        {
-            SDL_DestroyWindow(wnd);
-            running = false;
-        }
+        destroy();
         SDL_Quit();
     }
 
@@ -96,15 +95,62 @@ public:
             spdlog::error("Cant create SDL Window: {}", SDL_GetError());
             throw std::runtime_error("Window create error");
         }
+
+        const vk::ApplicationInfo app_info = {
+            .pApplicationName   = constants::appdata::title.c_str(),
+            .applicationVersion = vk::makeVersion(std::stoi(version::major),
+                                                  std::stoi(version::minor),
+                                                  std::stoi(version::patch)),
+            .pEngineName        = constants::appdata::title.c_str(),
+            .engineVersion      = vk::makeVersion(std::stoi(version::major),
+                                             std::stoi(version::minor),
+                                             std::stoi(version::patch)),
+            .apiVersion         = vk::ApiVersion14
+        };
+
+        std::vector<const char*> instance_ext = { "VK_KHR_wayland_surface" };
+
+        const vk::InstanceCreateInfo instance_info = {
+            .pApplicationInfo = &app_info,
+            // .enabledLayerCount =
+            // static_cast<uint32_t>(requestedLayers.size()),
+            // .ppEnabledLayerNames = requestedLayers.data(),
+            .enabledExtensionCount = static_cast<uint32_t>(instance_ext.size()),
+            .ppEnabledExtensionNames = instance_ext.data(),
+        };
+        vk::Result result =
+            vk::createInstance(&instance_info, nullptr, &instance);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error("Cant create Vulkan Instance, errror code: {}",
+                          static_cast<int>(result));
+            throw std::runtime_error("Vulkan Instance create error");
+        }
+
+        {
+            VkSurfaceKHR vk_surface {};
+            bool         success =
+                SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface);
+            if (!success)
+            {
+                spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
+                throw std::runtime_error("Vulkan Surface create error");
+            }
+            surface = vk_surface;
+        }
+
         running = true;
     }
     void destroy()
     {
         if (!running)
         {
+            spdlog::warn("Window didnt exist. Useless call {}.",
+                         std::source_location::current().function_name());
             return;
         }
         SDL_DestroyWindow(wnd);
+        SDL_Vulkan_DestroySurface(instance, surface, nullptr);
         running = false;
     }
     void poll_event()
@@ -129,7 +175,7 @@ public:
         return state & static_cast<flags>(flag::FULLSCREEN);
     }
 
-    [[nodiscard]] inline void* get_native_sdl_window() const { return wnd; }
+    friend class render;
 
 private:
     std::string    title {};
@@ -138,6 +184,9 @@ private:
     context::flags state {};
 
     SDL_Window* wnd {};
+
+    vk::Instance   instance {};
+    vk::SurfaceKHR surface {};
 
     bool running {};
 };
