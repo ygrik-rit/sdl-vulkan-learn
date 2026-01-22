@@ -18,7 +18,7 @@ export namespace svl::platform::window
 class window_error : public std::exception
 {
 public:
-    window_error(std::string_view msg)
+    explicit window_error(std::string_view msg)
         : message(msg)
     {
     }
@@ -114,7 +114,7 @@ public:
         if (!wnd)
         {
             spdlog::error("Cant create SDL Window: {}", SDL_GetError());
-            throw std::("Window create error");
+            throw window_error("Window create error");
         }
         // Vulkan
         init_instance();
