@@ -15,6 +15,21 @@ import vulkan;
 
 export namespace svl::platform::window
 {
+class window_error : public std::exception
+{
+public:
+    window_error(std::string_view msg)
+        : message(msg)
+    {
+    }
+    [[nodiscard]] const char* what() const noexcept override
+    {
+        return message.data();
+    }
+
+private:
+    std::string_view message {};
+};
 class context final
 {
 public:
@@ -71,7 +86,7 @@ public:
         if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_AUDIO))
         {
             spdlog::error("Cant init SDL: {}", SDL_GetError());
-            throw std::runtime_error("Window construct error");
+            throw window_error("Window construct error");
         }
     }
     // TODO: Add posibility to create 2 or more windows with diff render
@@ -99,7 +114,7 @@ public:
         if (!wnd)
         {
             spdlog::error("Cant create SDL Window: {}", SDL_GetError());
-            throw std::runtime_error("Window create error");
+            throw std::("Window create error");
         }
         // Vulkan
         init_instance();
@@ -203,7 +218,7 @@ private:
             if (!success)
             {
                 spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
-                throw std::runtime_error("Vulkan Surface create error");
+                throw window_error("Vulkan Surface create error");
             }
             surface = vk_surface;
         }

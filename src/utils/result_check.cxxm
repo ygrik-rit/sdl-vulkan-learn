@@ -18,7 +18,6 @@ void vk_check(vk::Result           result,
                       loc.line(),
                       loc.column(),
                       vk::to_string(result));
-        throw std::runtime_error("Vulkan Instance create error");
     }
 }
 } // namespace svl::utils
