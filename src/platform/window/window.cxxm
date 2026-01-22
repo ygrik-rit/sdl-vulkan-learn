@@ -76,18 +76,18 @@ public:
     }
     // TODO: Add posibility to create 2 or more windows with diff render
     // context, but common app logic and controls
-    context(const context& wnd) {}
+    context([[maybe_unused]] const context& wnd) {}
     ~context()
     {
         destroy();
         SDL_Quit();
     }
 
-    void create(std::vector<const char*> requested_layers,
-                std::vector<const char*> requested_ext)
+    void create(std::vector<const char*> req_layers,
+                std::vector<const char*> req_ext)
     {
-        this->requested_layers = std::move(requested_layers);
-        this->requested_ext    = std::move(requested_ext);
+        requested_layers = std::move(req_layers);
+        requested_ext    = std::move(req_ext);
         if (running)
         {
             spdlog::warn("Window exist. Repeated call of {} ignored.",
@@ -137,7 +137,7 @@ public:
     [[nodiscard]] inline bool is_running() const { return running; }
     [[nodiscard]] inline bool is_fullscreen() const
     {
-        return state & static_cast<flags>(flag::FULLSCREEN);
+        return state & std::to_underlying(flag::FULLSCREEN);
     }
 
 private:

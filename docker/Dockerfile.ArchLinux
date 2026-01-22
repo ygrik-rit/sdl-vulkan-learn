@@ -1,3 +1,3 @@
-FROM archlinux:latest
+FROM archlinux:multilib-devel
 
 RUN pacman -Suy --noconfirm cmake clang ninja mold libc++ sdl3
