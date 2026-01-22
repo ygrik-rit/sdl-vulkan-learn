@@ -70,17 +70,19 @@ public:
         {
             spdlog::info("{}", ext);
         }
-        // spdlog::info("Supported surface formats: ");
-        // for (const auto format : surface_formats)
-        // {
-        //     spdlog::info("{} : {}", format.format, format.colorSpace);
-        // }
+        spdlog::info("Supported surface formats: ");
+        for (const auto format : surface_formats)
+        {
+            spdlog::info("{} : {}",
+                         vk::to_string(format.format),
+                         vk::to_string(format.colorSpace));
+        }
 
-        // spdlog::info("Supported presentation modes: ");
-        // for (const auto mode : present_modes)
-        // {
-        //     spdlog::info("{}", mode);
-        // }
+        spdlog::info("Supported presentation modes: ");
+        for (const auto mode : present_modes)
+        {
+            spdlog::info("{}", vk::to_string(mode));
+        }
     }
 
 private:
