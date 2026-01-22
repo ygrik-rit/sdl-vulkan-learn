@@ -1,0 +1,24 @@
+module;
+#include <spdlog/spdlog.h>
+export module svl.utils;
+
+import std;
+import vulkan;
+
+export namespace svl::utils
+{
+void vk_check(vk::Result           result,
+              std::source_location loc = std::source_location::current())
+{
+    if (result != vk::Result::eSuccess)
+    {
+        spdlog::error("Vulkan call function {} at {}:{}:{} return result '{}'",
+                      loc.function_name(),
+                      loc.file_name(),
+                      loc.line(),
+                      loc.column(),
+                      vk::to_string(result));
+        throw std::runtime_error("Vulkan Instance create error");
+    }
+}
+} // namespace svl::utils

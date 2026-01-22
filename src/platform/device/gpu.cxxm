@@ -3,6 +3,8 @@ module;
 #include <vulkan/vulkan_hpp_macros.hpp>
 export module svl.platform.device:gpu;
 
+import svl.utils;
+
 import vulkan;
 
 export namespace svl::platform::device
@@ -30,12 +32,12 @@ public:
 
         {
             uint32_t propertyCount { 0 };
-            std::ignore = phys_device.enumerateDeviceExtensionProperties(
-                nullptr, &propertyCount, nullptr);
+            utils::vk_check(phys_device.enumerateDeviceExtensionProperties(
+                nullptr, &propertyCount, nullptr));
 
             std::vector<vk::ExtensionProperties> properties(propertyCount);
-            std::ignore = phys_device.enumerateDeviceExtensionProperties(
-                nullptr, &propertyCount, properties.data());
+            utils::vk_check(phys_device.enumerateDeviceExtensionProperties(
+                nullptr, &propertyCount, properties.data()));
 
             std::ranges::transform(
                 properties,
@@ -84,61 +86,26 @@ public:
 private:
     void enumerateSurfaceFormats(vk::SurfaceKHR surface)
     {
-        uint32_t   count { 0 };
-        vk::Result result =
-            phys_device.getSurfaceFormatsKHR(surface, &count, nullptr);
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error(
-                "Cant getSurfaceFormats of PhysDevice, errror code: {}",
-                vk::to_string(result));
-            throw std::runtime_error("Vulkan getSurfaceFormats error");
-        }
+        uint32_t count { 0 };
+        utils::vk_check(
+            phys_device.getSurfaceFormatsKHR(surface, &count, nullptr));
         surface_formats.resize(count);
-        result = phys_device.getSurfaceFormatsKHR(
-            surface, &count, surface_formats.data());
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error(
-                "Cant getSurfaceFormats of PhysDevice, errror code: {}",
-                vk::to_string(result));
-            throw std::runtime_error("Vulkan getSurfaceFormats error");
-        }
+        utils::vk_check(phys_device.getSurfaceFormatsKHR(
+            surface, &count, surface_formats.data()));
     }
     void enumerateSurfaceCapabilities(vk::SurfaceKHR surface)
     {
-        vk::Result result = phys_device.getSurfaceCapabilitiesKHR(
-            surface, &surface_capabilities);
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error(
-                "Cant get Surface Capabilities of PhysDevice, errror code: {}",
-                vk::to_string(result));
-            throw std::runtime_error("Vulkan get Surface Capabilities error");
-        }
+        utils::vk_check(phys_device.getSurfaceCapabilitiesKHR(
+            surface, &surface_capabilities));
     }
     void enumeratePresentationModes(vk::SurfaceKHR surface)
     {
         std::uint32_t count { 0 };
-        vk::Result    result =
-            phys_device.getSurfacePresentModesKHR(surface, &count, nullptr);
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error(
-                "Cant getSurfacePresentModes of PhysDevice, errror code: {}",
-                vk::to_string(result));
-            throw std::runtime_error("Vulkan getSurfacePresentModes error");
-        }
+        utils::vk_check(
+            phys_device.getSurfacePresentModesKHR(surface, &count, nullptr));
         present_modes.resize(count);
-        result = phys_device.getSurfacePresentModesKHR(
-            surface, &count, present_modes.data());
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error(
-                "Cant getSurfacePresentModes of PhysDevice, errror code: {}",
-                vk::to_string(result));
-            throw std::runtime_error("Vulkan getSurfacePresentModes error");
-        }
+        utils::vk_check(phys_device.getSurfacePresentModesKHR(
+            surface, &count, present_modes.data()));
     }
 
     vk::PhysicalDevice       phys_device {};

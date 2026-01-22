@@ -7,10 +7,11 @@ module;
 #include "svl_config.hxx"
 export module svl.platform.window;
 
+import svl.platform.device;
+import svl.utils;
+
 import std;
 import vulkan;
-
-import svl.platform.device;
 
 export namespace svl::platform::window
 {
@@ -156,10 +157,10 @@ private:
         };
 
         std::uint32_t count {};
-        std::ignore = vk::enumerateInstanceLayerProperties(&count, nullptr);
+        utils::vk_check(vk::enumerateInstanceLayerProperties(&count, nullptr));
         std::vector<vk::LayerProperties> avaliable_layers(count);
-        std::ignore = vk::enumerateInstanceLayerProperties(
-            &count, avaliable_layers.data());
+        utils::vk_check(vk::enumerateInstanceLayerProperties(
+            &count, avaliable_layers.data()));
 
         std::vector<const char*> avaliable_layers_name;
         std::ranges::transform(avaliable_layers,
@@ -167,11 +168,11 @@ private:
                                [](const vk::LayerProperties& layer)
                                { return layer.layerName.data(); });
 
-        std::ignore =
-            vk::enumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+        utils::vk_check(
+            vk::enumerateInstanceExtensionProperties(nullptr, &count, nullptr));
         std::vector<vk::ExtensionProperties> avaliable_extension(count);
-        std::ignore = vk::enumerateInstanceExtensionProperties(
-            nullptr, &count, avaliable_extension.data());
+        utils::vk_check(vk::enumerateInstanceExtensionProperties(
+            nullptr, &count, avaliable_extension.data()));
 
         std::vector<const char*> avaliable_extension_name;
         std::ranges::transform(avaliable_extension,
@@ -191,14 +192,7 @@ private:
             .enabledExtensionCount = static_cast<uint32_t>(instance_ext.size()),
             .ppEnabledExtensionNames = instance_ext.data(),
         };
-        vk::Result result =
-            vk::createInstance(&instance_info, nullptr, &instance);
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error("Cant create Vulkan Instance, errror code: {}",
-                          vk::to_string(result));
-            throw std::runtime_error("Vulkan Instance create error");
-        }
+        utils::vk_check(vk::createInstance(&instance_info, nullptr, &instance));
     }
     void init_surface()
     {
@@ -217,10 +211,10 @@ private:
     void init_gpu()
     {
         uint32_t count {};
-        std::ignore = instance.enumeratePhysicalDevices(&count, nullptr);
+        utils::vk_check(instance.enumeratePhysicalDevices(&count, nullptr));
         phys_devices.resize(count);
-        std::ignore =
-            instance.enumeratePhysicalDevices(&count, phys_devices.data());
+        utils::vk_check(
+            instance.enumeratePhysicalDevices(&count, phys_devices.data()));
 
         for (const auto& device : phys_devices)
         {
@@ -242,8 +236,11 @@ private:
         std::ranges::sort(avaliable);
         std::vector<const char*> result;
 
-        std::ranges::set_intersection(
-            requested, avaliable, std::back_inserter(result));
+        std::ranges::set_intersection(requested,
+                                      avaliable,
+                                      std::back_inserter(result),
+                                      [](const char* a, const char* b)
+                                      { return a == b; });
 
         return result;
     }
