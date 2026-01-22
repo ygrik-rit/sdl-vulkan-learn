@@ -10,6 +10,8 @@ option(
     OFF
 )
 
+option(SVL_COVERAGE "Run build and test to discover code coverage" OFF)
+
 cmake_dependent_option(
     SVL_WAYLAND
     "Built with support Wayland"

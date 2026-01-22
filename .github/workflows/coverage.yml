@@ -1,0 +1,70 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      PRESET: "base"
+      BUILD_TYPE: "Debug"
+      BUILD_DIR: ${{ github.workspace }}/.build
+      BUILD_WRAPPER_DIR: ${{ github.workspace }}/.build/wrapped
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Run apt-get
+        run: |
+            wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+            sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-noble.list https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+            wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+            sudo add-apt-repository -y "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"
+            sudo apt-get update && sudo apt-get upgrade
+            sudo apt-get install build-essential make \
+                pkg-config ninja-build gnome-desktop-testing libasound2-dev libpulse-dev \
+                libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
+                libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
+                libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+                libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev \
+                libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev \
+                vulkan-sdk clang-21 mold libc++-21-dev libc++abi-21-dev libclang-rt-21-dev \
+                llvm-21-dev clang-tools-21 libclang-common-21-dev libclang-21-dev libclang1-21
+
+            
+            sudo apt-get remove cmake
+            wget https://github.com/Kitware/CMake/releases/download/v4.2.1/cmake-4.2.1-linux-x86_64.sh
+            chmod +x cmake-4.2.1-linux-x86_64.sh
+            sudo ./cmake-4.2.1-linux-x86_64.sh --prefix=/usr/local --exclude-subdir --skip-license
+      
+      - name: Install Build Wrapper
+        uses: SonarSource/sonarqube-scan-action/install-build-wrapper@v4
+      - name: Run CMake configure
+        run: |
+          cmake --preset ${{ env.PRESET }} -DSVL_COVERAGE=ON -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_CXX_STDLIB_MODULES_JSON=/usr/lib/llvm-21/lib/libc++.modules.json
+      - name: Run CMake build
+        run: |
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_DIR }} cmake --build --preset base-Debug
+      - name: Run tests to generate coverage information
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
+        run: |
+          ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/coverage
+      - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
+        run: |
+          llvm-profdata-21 merge -o merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/*.profraw
+      - name: Collect the coverage
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
+        run: |
+          llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/coverage > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
+        with:
+          args: >
+            --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_DIR }}/compile_commands.json
+            --define sonar.cfamily.llvm-cov.reportPath=${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt

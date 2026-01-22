@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 4.2 FATAL_ERROR)
 
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 23) # c++26 cant analyzed by sonarcube
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -10,14 +9,12 @@ set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
-
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
 set(CMAKE_CXX_MODULE_STD 1)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 # Global use mold linker
 add_link_options(-fuse-ld=mold)
 
@@ -28,6 +25,16 @@ project(
     HOMEPAGE_URL "http://localhost"
     LANGUAGES C CXX
 )
+
+# Avoid scanning std.cc 
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+
+if(NOT TARGET __CMAKE::CXX23)
+    message(
+        FATAL_ERROR
+        "For build this project needed cxx23 support or higher. Install clang 19+ and newer libc++"
+    )
+endif()
 
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -44,7 +51,25 @@ target_compile_definitions(
     svl_base
     INTERFACE $<$<CONFIG:Debug>:SVL_DEBUG> $<$<PLATFORM_ID:Linux>:SVL_LINUX>
 )
-target_compile_options(svl_base INTERFACE -Werror -Wpedantic -Wall)
+target_compile_options(
+    svl_base
+    INTERFACE
+        -Werror
+        -Wpedantic
+        -Wall
+        $<$<BOOL:${SVL_COVERAGE}>:
+        -fprofile-instr-generate
+        -fcoverage-mapping
+        >
+)
+target_link_options(
+    svl_base
+    INTERFACE
+        $<$<BOOL:${SVL_COVERAGE}>:
+        -fprofile-instr-generate
+        -fcoverage-mapping
+        >
+)
 target_include_directories(
     svl_base
     INTERFACE ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/src
@@ -54,3 +79,7 @@ add_library(svl::base ALIAS svl_base)
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(example)
+add_subdirectory(tests)
+
+include(CTest)
+# add_test(NAME coverage COMMAND coverage_test)

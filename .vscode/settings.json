@@ -1,3 +1,7 @@
 {
-    "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json"
+    "sonarlint.pathToCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "sonarlint.connectedMode.project": {
+        "connectionId": "ygrik-rit",
+        "projectKey": "ygrik-rit_sdl-vulkan-learn"
+    }
 }

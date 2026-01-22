@@ -8,6 +8,7 @@ add_subdirectory(SDL EXCLUDE_FROM_ALL SYSTEM)
 
 set(VULKAN_HPP_BUILD_WITH_LOCAL_VULKAN_HPP ON)
 set(VULKAN_HPP_NO_CONSTRUCTORS ON)
+set(VULKAN_HPP_BUILD_CXX_MODULE ON)
 add_subdirectory(Vulkan-Hpp EXCLUDE_FROM_ALL SYSTEM)
 target_compile_definitions(
     VulkanHppModule
