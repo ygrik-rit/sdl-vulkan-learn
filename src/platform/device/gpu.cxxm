@@ -1,0 +1,160 @@
+module;
+#include <spdlog/spdlog.h>
+#include <vulkan/vulkan_hpp_macros.hpp>
+export module svl.platform.device:gpu;
+
+import vulkan;
+
+export namespace svl::platform::device
+{
+class gpu final
+{
+public:
+    gpu() = default;
+    gpu(vk::PhysicalDevice       phys_device,
+        vk::SurfaceKHR           surface,
+        std::vector<std::string> requested_ext)
+        : phys_device(phys_device)
+    {
+        phys_device.getFeatures2(&features);
+        phys_device.getProperties2(&properties);
+        phys_device.getMemoryProperties2(&memory_properties);
+
+        {
+            uint32_t queueFamilyCount { 0 };
+            phys_device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
+            queue_family_properties.resize(queueFamilyCount);
+            phys_device.getQueueFamilyProperties(
+                &queueFamilyCount, queue_family_properties.data());
+        }
+
+        {
+            uint32_t propertyCount { 0 };
+            std::ignore = phys_device.enumerateDeviceExtensionProperties(
+                nullptr, &propertyCount, nullptr);
+
+            std::vector<vk::ExtensionProperties> properties(propertyCount);
+            std::ignore = phys_device.enumerateDeviceExtensionProperties(
+                nullptr, &propertyCount, properties.data());
+
+            std::ranges::transform(
+                properties,
+                std::back_inserter(extensions),
+                [](const vk::ExtensionProperties& property)
+                { return std::string(property.extensionName); });
+
+            std::ranges::sort(extensions);
+            std::ranges::sort(requested_ext);
+            std::vector<std::string> enabled_ext_vec;
+            std::ranges::set_intersection(
+                extensions, requested_ext, std::back_inserter(enabled_ext_vec));
+            enabled_ext = { enabled_ext_vec.begin(), enabled_ext_vec.end() };
+        }
+
+        if (surface != nullptr)
+        {
+            enumerateSurfaceFormats(surface);
+            enumerateSurfaceCapabilities(surface);
+            enumeratePresentationModes(surface);
+        }
+
+        spdlog::info("{} {} ({}) - Vulkan {}",
+                     properties.properties.deviceName.data(),
+                     properties.properties.vendorID,
+                     properties.properties.deviceID,
+                     properties.properties.apiVersion);
+        spdlog::info("Extensions:");
+        for (const auto& ext : extensions)
+        {
+            spdlog::info("{}", ext);
+        }
+        // spdlog::info("Supported surface formats: ");
+        // for (const auto format : surface_formats)
+        // {
+        //     spdlog::info("{} : {}", format.format, format.colorSpace);
+        // }
+
+        // spdlog::info("Supported presentation modes: ");
+        // for (const auto mode : present_modes)
+        // {
+        //     spdlog::info("{}", mode);
+        // }
+    }
+
+private:
+    void enumerateSurfaceFormats(vk::SurfaceKHR surface)
+    {
+        uint32_t   count { 0 };
+        vk::Result result =
+            phys_device.getSurfaceFormatsKHR(surface, &count, nullptr);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error(
+                "Cant getSurfaceFormats of PhysDevice, errror code: {}",
+                vk::to_string(result));
+            throw std::runtime_error("Vulkan getSurfaceFormats error");
+        }
+        surface_formats.resize(count);
+        result = phys_device.getSurfaceFormatsKHR(
+            surface, &count, surface_formats.data());
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error(
+                "Cant getSurfaceFormats of PhysDevice, errror code: {}",
+                vk::to_string(result));
+            throw std::runtime_error("Vulkan getSurfaceFormats error");
+        }
+    }
+    void enumerateSurfaceCapabilities(vk::SurfaceKHR surface)
+    {
+        vk::Result result = phys_device.getSurfaceCapabilitiesKHR(
+            surface, &surface_capabilities);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error(
+                "Cant get Surface Capabilities of PhysDevice, errror code: {}",
+                vk::to_string(result));
+            throw std::runtime_error("Vulkan get Surface Capabilities error");
+        }
+    }
+    void enumeratePresentationModes(vk::SurfaceKHR surface)
+    {
+        std::uint32_t count { 0 };
+        vk::Result    result =
+            phys_device.getSurfacePresentModesKHR(surface, &count, nullptr);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error(
+                "Cant getSurfacePresentModes of PhysDevice, errror code: {}",
+                vk::to_string(result));
+            throw std::runtime_error("Vulkan getSurfacePresentModes error");
+        }
+        present_modes.resize(count);
+        result = phys_device.getSurfacePresentModesKHR(
+            surface, &count, present_modes.data());
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error(
+                "Cant getSurfacePresentModes of PhysDevice, errror code: {}",
+                vk::to_string(result));
+            throw std::runtime_error("Vulkan getSurfacePresentModes error");
+        }
+    }
+
+    vk::PhysicalDevice       phys_device {};
+    std::vector<std::string> extensions;
+
+    vk::PhysicalDeviceProperties2 properties = {};
+
+    vk::PhysicalDeviceFeatures2         features = {};
+    vk::PhysicalDeviceMemoryProperties2 memory_properties;
+
+    std::vector<vk::QueueFamilyProperties> queue_family_properties;
+
+    // Swapchain support
+    std::vector<vk::SurfaceFormatKHR> surface_formats;
+    vk::SurfaceCapabilitiesKHR        surface_capabilities;
+    std::vector<vk::PresentModeKHR>   present_modes;
+    std::unordered_set<std::string>   enabled_ext;
+};
+} // namespace svl::platform::device

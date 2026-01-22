@@ -10,6 +10,8 @@ export module svl.platform.window;
 import std;
 import vulkan;
 
+import svl.platform.device;
+
 export namespace svl::platform::window
 {
 class context final
@@ -80,8 +82,11 @@ public:
         SDL_Quit();
     }
 
-    void create()
+    void create(std::vector<const char*> requested_layers,
+                std::vector<const char*> requested_ext)
     {
+        this->requested_layers = std::move(requested_layers);
+        this->requested_ext    = std::move(requested_ext);
         if (running)
         {
             spdlog::warn("Window exist. Repeated call of {} ignored.",
@@ -95,49 +100,10 @@ public:
             spdlog::error("Cant create SDL Window: {}", SDL_GetError());
             throw std::runtime_error("Window create error");
         }
-
-        const vk::ApplicationInfo app_info = {
-            .pApplicationName   = constants::appdata::title.c_str(),
-            .applicationVersion = vk::makeVersion(std::stoi(version::major),
-                                                  std::stoi(version::minor),
-                                                  std::stoi(version::patch)),
-            .pEngineName        = constants::appdata::title.c_str(),
-            .engineVersion      = vk::makeVersion(std::stoi(version::major),
-                                             std::stoi(version::minor),
-                                             std::stoi(version::patch)),
-            .apiVersion         = vk::ApiVersion14
-        };
-
-        std::vector<const char*> instance_ext = { "VK_KHR_wayland_surface" };
-
-        const vk::InstanceCreateInfo instance_info = {
-            .pApplicationInfo = &app_info,
-            // .enabledLayerCount =
-            // static_cast<uint32_t>(requestedLayers.size()),
-            // .ppEnabledLayerNames = requestedLayers.data(),
-            .enabledExtensionCount = static_cast<uint32_t>(instance_ext.size()),
-            .ppEnabledExtensionNames = instance_ext.data(),
-        };
-        vk::Result result =
-            vk::createInstance(&instance_info, nullptr, &instance);
-        if (result != vk::Result::eSuccess)
-        {
-            spdlog::error("Cant create Vulkan Instance, errror code: {}",
-                          static_cast<int>(result));
-            throw std::runtime_error("Vulkan Instance create error");
-        }
-
-        {
-            VkSurfaceKHR vk_surface {};
-            bool         success =
-                SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface);
-            if (!success)
-            {
-                spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
-                throw std::runtime_error("Vulkan Surface create error");
-            }
-            surface = vk_surface;
-        }
+        // Vulkan
+        init_instance();
+        init_surface();
+        init_gpu();
 
         running = true;
     }
@@ -145,8 +111,6 @@ public:
     {
         if (!running)
         {
-            spdlog::warn("Window didnt exist. Useless call {}.",
-                         std::source_location::current().function_name());
             return;
         }
         SDL_DestroyWindow(wnd);
@@ -175,19 +139,131 @@ public:
         return state & static_cast<flags>(flag::FULLSCREEN);
     }
 
-    friend class render;
-
 private:
+    void init_instance()
+    {
+
+        const vk::ApplicationInfo app_info = {
+            .pApplicationName   = constants::appdata::title.c_str(),
+            .applicationVersion = vk::makeVersion(std::stoi(version::major),
+                                                  std::stoi(version::minor),
+                                                  std::stoi(version::patch)),
+            .pEngineName        = constants::appdata::title.c_str(),
+            .engineVersion      = vk::makeVersion(std::stoi(version::major),
+                                             std::stoi(version::minor),
+                                             std::stoi(version::patch)),
+            .apiVersion         = vk::ApiVersion14
+        };
+
+        std::uint32_t count {};
+        std::ignore = vk::enumerateInstanceLayerProperties(&count, nullptr);
+        std::vector<vk::LayerProperties> avaliable_layers(count);
+        std::ignore = vk::enumerateInstanceLayerProperties(
+            &count, avaliable_layers.data());
+
+        std::vector<const char*> avaliable_layers_name;
+        std::ranges::transform(avaliable_layers,
+                               std::back_inserter(avaliable_layers_name),
+                               [](const vk::LayerProperties& layer)
+                               { return layer.layerName.data(); });
+
+        std::ignore =
+            vk::enumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+        std::vector<vk::ExtensionProperties> avaliable_extension(count);
+        std::ignore = vk::enumerateInstanceExtensionProperties(
+            nullptr, &count, avaliable_extension.data());
+
+        std::vector<const char*> avaliable_extension_name;
+        std::ranges::transform(avaliable_extension,
+                               std::back_inserter(avaliable_extension_name),
+                               [](const vk::ExtensionProperties& ext)
+                               { return ext.extensionName.data(); });
+
+        std::vector<const char*> instance_layers =
+            filter_instance(requested_layers, avaliable_layers_name);
+        std::vector<const char*> instance_ext =
+            filter_instance(requested_ext, avaliable_extension_name);
+
+        const vk::InstanceCreateInfo instance_info = {
+            .pApplicationInfo  = &app_info,
+            .enabledLayerCount = static_cast<uint32_t>(instance_layers.size()),
+            .ppEnabledLayerNames   = instance_layers.data(),
+            .enabledExtensionCount = static_cast<uint32_t>(instance_ext.size()),
+            .ppEnabledExtensionNames = instance_ext.data(),
+        };
+        vk::Result result =
+            vk::createInstance(&instance_info, nullptr, &instance);
+        if (result != vk::Result::eSuccess)
+        {
+            spdlog::error("Cant create Vulkan Instance, errror code: {}",
+                          vk::to_string(result));
+            throw std::runtime_error("Vulkan Instance create error");
+        }
+    }
+    void init_surface()
+    {
+        {
+            VkSurfaceKHR vk_surface {};
+            bool         success =
+                SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface);
+            if (!success)
+            {
+                spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
+                throw std::runtime_error("Vulkan Surface create error");
+            }
+            surface = vk_surface;
+        }
+    }
+    void init_gpu()
+    {
+        uint32_t count {};
+        std::ignore = instance.enumeratePhysicalDevices(&count, nullptr);
+        phys_devices.resize(count);
+        std::ignore =
+            instance.enumeratePhysicalDevices(&count, phys_devices.data());
+
+        for (const auto& device : phys_devices)
+        {
+            spdlog::info("Device info: \n\tName: {}\n\tdeviceID: "
+                         "{}\n\tvendorID: {}\n\tdeviceType: "
+                         "{}\n\tdriverVersion: {}",
+                         device.getProperties().deviceName.data(),
+                         device.getProperties().deviceID,
+                         device.getProperties().vendorID,
+                         vk::to_string(device.getProperties().deviceType),
+                         device.getProperties().driverVersion);
+        }
+        current_gpu = platform::device::gpu(phys_devices[0], surface, {});
+    }
+    std::vector<const char*> filter_instance(std::vector<const char*> requested,
+                                             std::vector<const char*> avaliable)
+    {
+        std::ranges::sort(requested);
+        std::ranges::sort(avaliable);
+        std::vector<const char*> result;
+
+        std::ranges::set_intersection(
+            requested, avaliable, std::back_inserter(result));
+
+        return result;
+    }
+
     std::string    title {};
     std::int32_t   width {};
     std::int32_t   height {};
     context::flags state {};
+
+    bool running {};
 
     SDL_Window* wnd {};
 
     vk::Instance   instance {};
     vk::SurfaceKHR surface {};
 
-    bool running {};
+    std::vector<const char*> requested_layers;
+    std::vector<const char*> requested_ext;
+
+    std::vector<vk::PhysicalDevice> phys_devices;
+    device::gpu                     current_gpu {};
 };
 } // namespace svl::platform::window

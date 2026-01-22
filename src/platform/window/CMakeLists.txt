@@ -6,6 +6,6 @@ target_sources(
 )
 target_link_libraries(
     window
-    PRIVATE svl::base SDL3::SDL3-shared Vulkan::HppModule
+    PRIVATE svl::base svl::device SDL3::SDL3-shared Vulkan::HppModule
 )
 add_library(svl::window ALIAS window)

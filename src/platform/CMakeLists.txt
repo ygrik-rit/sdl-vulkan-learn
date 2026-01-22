@@ -1,3 +1,4 @@
+add_subdirectory(device)
 add_subdirectory(window)
 
 add_library(platform OBJECT)

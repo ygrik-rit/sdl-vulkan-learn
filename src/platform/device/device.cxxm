@@ -1,0 +1,3 @@
+module;
+export module svl.platform.device;
+export import :gpu;
