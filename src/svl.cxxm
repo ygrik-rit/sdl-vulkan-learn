@@ -14,7 +14,7 @@ int run()
     platform::window::context core_window(
         constants::appdata::title, 480, 360, 0);
 
-    core_window.create({}, { "VK_KHR_wayland_surface" });
+    core_window.create({}, { "VK_KHR_wayland_surface", "VK_KHR_surface" });
 
     while (core_window.is_running())
     {

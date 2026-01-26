@@ -6,7 +6,7 @@ target_sources(
 )
 target_link_libraries(
     utils
-    PRIVATE svl::base Vulkan::HppModule SDL3::SDL3-shared spdlog::spdlog
+    PRIVATE svl::base Vulkan::HppModule SDL3::SDL3-shared
 )
 
 add_library(svl::utils ALIAS utils)

@@ -5,4 +5,4 @@ else()
 endif()
 
 target_sources(example PRIVATE example.cxx)
-target_link_libraries(example PRIVATE spdlog::spdlog svl::svl svl::base)
+target_link_libraries(example PRIVATE svl::svl svl::base)

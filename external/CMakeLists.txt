@@ -39,3 +39,5 @@ if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
     # Not tested
     add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
 endif()
+
+add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)

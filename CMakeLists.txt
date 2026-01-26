@@ -47,6 +47,8 @@ configure_file(
 )
 
 add_library(svl_base INTERFACE)
+# use logging in all libs
+target_link_libraries(svl_base INTERFACE spdlog::spdlog libassert::assert)
 target_compile_definitions(
     svl_base
     INTERFACE $<$<CONFIG:Debug>:SVL_DEBUG> $<$<PLATFORM_ID:Linux>:SVL_LINUX>

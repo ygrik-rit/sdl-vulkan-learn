@@ -6,4 +6,4 @@ endif()
 
 target_sources(coverage PRIVATE coverage.cxx)
 
-target_link_libraries(coverage PRIVATE spdlog::spdlog svl::svl svl::base)
+target_link_libraries(coverage PRIVATE svl::svl svl::base)

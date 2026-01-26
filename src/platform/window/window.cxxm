@@ -233,9 +233,9 @@ private:
 
         for (const auto& device : phys_devices)
         {
-            spdlog::info("Device info: \n\tName: {}\n\tdeviceID: "
-                         "{}\n\tvendorID: {}\n\tdeviceType: "
-                         "{}\n\tdriverVersion: {}",
+            spdlog::info("Device {}: \ndeviceID: "
+                         "{}\nvendorID: {}\ndeviceType: "
+                         "{}\ndriverVersion: {}",
                          device.getProperties().deviceName.data(),
                          device.getProperties().deviceID,
                          device.getProperties().vendorID,
@@ -243,6 +243,9 @@ private:
                          device.getProperties().driverVersion);
         }
         current_gpu = platform::device::gpu(phys_devices[0], surface, {});
+
+        // Always request a graphics queue
+        current_gpu.reserve_queues(vk::QueueFlagBits::eGraphics, surface);
     }
     std::vector<const char*> filter_instance(std::vector<const char*> requested,
                                              std::vector<const char*> avaliable)

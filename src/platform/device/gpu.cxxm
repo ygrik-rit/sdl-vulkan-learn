@@ -1,10 +1,13 @@
 module;
+#include <libassert/assert-macros.hpp>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 #include <vulkan/vulkan_hpp_macros.hpp>
 export module svl.platform.device:gpu;
 
 import svl.utils;
 
+import libassert;
 import vulkan;
 
 export namespace svl::platform::device
@@ -23,11 +26,11 @@ public:
         phys_device.getMemoryProperties2(&memory_properties);
 
         {
-            uint32_t queueFamilyCount { 0 };
-            phys_device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
-            queue_family_properties.resize(queueFamilyCount);
+            uint32_t count { 0 };
+            phys_device.getQueueFamilyProperties(&count, nullptr);
+            queue_family_properties.resize(count);
             phys_device.getQueueFamilyProperties(
-                &queueFamilyCount, queue_family_properties.data());
+                &count, queue_family_properties.data());
         }
 
         {
@@ -60,20 +63,24 @@ public:
             enumeratePresentationModes(surface);
         }
 
-        spdlog::info("{} {} ({}) - Vulkan {}",
+        spdlog::info("Selected GPU: {} {} ({}) - Vulkan {}",
                      properties.properties.deviceName.data(),
                      properties.properties.vendorID,
                      properties.properties.deviceID,
                      properties.properties.apiVersion);
+
+        auto logger = spdlog::stdout_color_mt("stdout");
+        logger->set_pattern("%v");
+
         spdlog::info("Extensions:");
         for (const auto& ext : extensions)
         {
-            spdlog::info("{}", ext);
+            logger->info("{}", ext);
         }
         spdlog::info("Supported surface formats: ");
         for (const auto format : surface_formats)
         {
-            spdlog::info("{} : {}",
+            logger->info("{} : {}",
                          vk::to_string(format.format),
                          vk::to_string(format.colorSpace));
         }
@@ -81,8 +88,91 @@ public:
         spdlog::info("Supported presentation modes: ");
         for (const auto mode : present_modes)
         {
-            spdlog::info("{}", vk::to_string(mode));
+
+            logger->info("{}", vk::to_string(mode));
         }
+    }
+    void reserve_queues(vk::QueueFlags requested_queue_types,
+                        vk::SurfaceKHR surface)
+    {
+        ASSERT(static_cast<bool>(requested_queue_types),
+               "Requested queue types is empty");
+
+        for (uint32_t queue_family_index = 0;
+             queue_family_index < queue_family_properties.size() &&
+             static_cast<bool>(requested_queue_types);
+             ++queue_family_index)
+        {
+            if (!presentation_family_index.has_value() && surface)
+            {
+                vk::Bool32 supports_present { false };
+                utils::vk_check(phys_device.getSurfaceSupportKHR(
+                    queue_family_index, surface, &supports_present));
+
+                if (supports_present == true)
+                {
+                    presentation_family_index = queue_family_index;
+                    presentation_queue_count =
+                        queue_family_properties[queue_family_index].queueCount;
+                }
+            }
+            if (!graphics_family_index.has_value() &&
+                (requested_queue_types &
+                 queue_family_properties[queue_family_index].queueFlags) &
+                    vk::QueueFlagBits::eGraphics)
+            {
+                graphics_family_index = queue_family_index;
+                graphics_queue_count =
+                    queue_family_properties[queue_family_index].queueCount;
+                requested_queue_types &= ~vk::QueueFlagBits::eGraphics;
+                continue;
+            }
+
+            if (!compute_family_index.has_value() &&
+                (requested_queue_types &
+                 queue_family_properties[queue_family_index].queueFlags) &
+                    vk::QueueFlagBits::eCompute)
+            {
+                compute_family_index = queue_family_index;
+                compute_queue_count =
+                    queue_family_properties[queue_family_index].queueCount;
+                requested_queue_types &= ~vk::QueueFlagBits::eCompute;
+                continue;
+            }
+
+            if (!transfer_family_index.has_value() &&
+                (requested_queue_types &
+                 queue_family_properties[queue_family_index].queueFlags) &
+                    vk::QueueFlagBits::eTransfer)
+            {
+                transfer_family_index = queue_family_index;
+                transfer_queue_count =
+                    queue_family_properties[queue_family_index].queueCount;
+                requested_queue_types &= ~vk::QueueFlagBits::eTransfer;
+                continue;
+            }
+
+            if (!sparse_family_index.has_value() &&
+                (requested_queue_types &
+                 queue_family_properties[queue_family_index].queueFlags) &
+                    vk::QueueFlagBits::eSparseBinding)
+            {
+                sparse_family_index = queue_family_index;
+                sparse_queue_count =
+                    queue_family_properties[queue_family_index].queueCount;
+                requested_queue_types &= ~vk::QueueFlagBits::eSparseBinding;
+                continue;
+            }
+        }
+
+        ASSERT(graphics_family_index.has_value() ||
+                   compute_family_index.has_value() ||
+                   transfer_family_index.has_value() ||
+                   sparse_family_index.has_value(),
+               "No suitable queue(s) found");
+
+        ASSERT(!surface || presentation_family_index.has_value(),
+               "No queues with presentation capabilities found");
     }
 
 private:
@@ -125,5 +215,16 @@ private:
     vk::SurfaceCapabilitiesKHR        surface_capabilities;
     std::vector<vk::PresentModeKHR>   present_modes;
     std::unordered_set<std::string>   enabled_ext;
+
+    std::optional<uint32_t> presentation_family_index;
+    uint32_t                presentation_queue_count {};
+    std::optional<uint32_t> graphics_family_index;
+    uint32_t                graphics_queue_count {};
+    std::optional<uint32_t> compute_family_index;
+    uint32_t                compute_queue_count {};
+    std::optional<uint32_t> transfer_family_index;
+    uint32_t                transfer_queue_count {};
+    std::optional<uint32_t> sparse_family_index;
+    uint32_t                sparse_queue_count {};
 };
 } // namespace svl::platform::device
