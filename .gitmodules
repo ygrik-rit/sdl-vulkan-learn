@@ -13,3 +13,6 @@
 [submodule "external/libassert"]
 	path = external/libassert
 	url = https://github.com/jeremy-rifkin/libassert
+[submodule "external/tracy"]
+	path = external/tracy
+	url = https://github.com/wolfpld/tracy
