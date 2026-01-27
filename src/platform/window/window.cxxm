@@ -100,6 +100,7 @@ public:
         destroy();
         SDL_Quit();
     }
+    context& operator=(context const&) = delete;
 
     void create(std::vector<const char*> req_layers,
                 std::vector<const char*> req_ext)
@@ -213,9 +214,7 @@ private:
     {
         {
             VkSurfaceKHR vk_surface {};
-            bool         success =
-                SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface);
-            if (!success)
+            if (SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface))
             {
                 spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
                 throw window_error("Vulkan Surface create error");
@@ -280,45 +279,38 @@ private:
                 &dci, nullptr, &logical_device));
         }
 
-        if (current_gpu.graphics_family_enabled())
+        if (current_gpu.graphics_family_enabled() &&
+            current_gpu.get_graphics_queue_count() > 0)
         {
-            if (current_gpu.get_graphics_queue_count() > 0)
-            {
-                graphics_queues.resize(current_gpu.get_graphics_queue_count(),
-                                       {});
+            graphics_queues.resize(current_gpu.get_graphics_queue_count(), {});
 
-                for (uint32_t i = 0; i < graphics_queues.size(); ++i)
-                {
-                    vk::DeviceQueueInfo2 info = {
-                        .queueFamilyIndex =
-                            current_gpu.get_graphics_family_index(),
-                        .queueIndex = i,
-                    };
-                    logical_device.getQueue2(&info, &graphics_queues[i]);
-                }
+            for (uint32_t i = 0; i < graphics_queues.size(); ++i)
+            {
+                vk::DeviceQueueInfo2 info = {
+                    .queueFamilyIndex = current_gpu.get_graphics_family_index(),
+                    .queueIndex       = i,
+                };
+                logical_device.getQueue2(&info, &graphics_queues[i]);
             }
         }
-        if (current_gpu.compute_family_enabled())
+        if (current_gpu.compute_family_enabled() &&
+            current_gpu.get_compute_queue_count() > 0)
         {
-            if (current_gpu.get_compute_queue_count() > 0)
-            {
-                compute_queues.resize(current_gpu.get_compute_queue_count(),
-                                      {});
+            compute_queues.resize(current_gpu.get_compute_queue_count(), {});
 
-                for (uint32_t i = 0; i < compute_queues.size(); ++i)
-                {
-                    vk::DeviceQueueInfo2 info = {
-                        .queueFamilyIndex =
-                            current_gpu.get_compute_family_index(),
-                        .queueIndex = i,
-                    };
-                    logical_device.getQueue2(&info, &compute_queues[i]);
-                }
+            for (uint32_t i = 0; i < compute_queues.size(); ++i)
+            {
+                vk::DeviceQueueInfo2 info = {
+                    .queueFamilyIndex = current_gpu.get_compute_family_index(),
+                    .queueIndex       = i,
+                };
+                logical_device.getQueue2(&info, &compute_queues[i]);
             }
         }
     }
-    std::vector<const char*> filter_instance(std::vector<const char*> requested,
-                                             std::vector<const char*> avaliable)
+    [[nodiscard]] std::vector<const char*> filter_instance(
+        std::vector<const char*> requested,
+        std::vector<const char*> avaliable) const
     {
         std::ranges::sort(requested);
         std::ranges::sort(avaliable);

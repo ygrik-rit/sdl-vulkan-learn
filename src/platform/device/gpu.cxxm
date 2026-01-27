@@ -34,16 +34,17 @@ public:
         }
 
         {
-            uint32_t propertyCount { 0 };
+            uint32_t ext_property_count { 0 };
             utils::vk_check(phys_device.enumerateDeviceExtensionProperties(
-                nullptr, &propertyCount, nullptr));
+                nullptr, &ext_property_count, nullptr));
 
-            std::vector<vk::ExtensionProperties> properties(propertyCount);
+            std::vector<vk::ExtensionProperties> ext_properties(
+                ext_property_count);
             utils::vk_check(phys_device.enumerateDeviceExtensionProperties(
-                nullptr, &propertyCount, properties.data()));
+                nullptr, &ext_property_count, ext_properties.data()));
 
             std::ranges::transform(
-                properties,
+                ext_properties,
                 std::back_inserter(extensions),
                 [](const vk::ExtensionProperties& property)
                 { return std::string(property.extensionName); });
@@ -92,7 +93,7 @@ public:
             logger->info("{}", vk::to_string(mode));
         }
     }
-    [[nodiscard]] const vk::PhysicalDevice device() const noexcept
+    [[nodiscard]] vk::PhysicalDevice device() const noexcept
     {
         return phys_device;
     }
@@ -279,7 +280,7 @@ private:
     std::vector<vk::SurfaceFormatKHR> surface_formats;
     vk::SurfaceCapabilitiesKHR        surface_capabilities;
     std::vector<vk::PresentModeKHR>   present_modes;
-    std::unordered_set<std::string>   enabled_ext;
+    std::set<std::string>             enabled_ext;
 
     std::optional<uint32_t> presentation_family_index;
     uint32_t                presentation_queue_count {};
