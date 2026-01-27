@@ -196,10 +196,9 @@ private:
                                [](const vk::ExtensionProperties& ext)
                                { return ext.extensionName.data(); });
 
-        std::vector<const char*> instance_layers =
+        instance_layers =
             filter_instance(requested_layers, avaliable_layers_name);
-        std::vector<const char*> instance_ext =
-            filter_instance(requested_ext, avaliable_extension_name);
+        instance_ext = filter_instance(requested_ext, avaliable_extension_name);
 
         const vk::InstanceCreateInfo instance_info = {
             .pApplicationInfo  = &app_info,
@@ -247,6 +246,76 @@ private:
 
         // Always request a graphics queue
         current_gpu.reserve_queues(vk::QueueFlagBits::eGraphics, surface);
+
+        // Create the device
+        {
+            const auto family_indices =
+                current_gpu.queue_family_index_and_count();
+
+            std::vector<vk::DeviceQueueCreateInfo> queue_create_infos;
+
+            std::vector<std::vector<float>> priorities_for_all_families(
+                family_indices.size());
+            for (size_t index = 0;
+                 const auto& [queueFamilyIndex, queueCount] : family_indices)
+            {
+                priorities_for_all_families[index] =
+                    std::vector<float>(queueCount, 1.0f);
+                queue_create_infos.emplace_back(vk::DeviceQueueCreateInfo {
+                    .queueFamilyIndex = queueFamilyIndex,
+                    .queueCount       = queueCount,
+                    .pQueuePriorities =
+                        priorities_for_all_families[index].data(),
+                });
+                ++index;
+            }
+
+            const vk::DeviceCreateInfo dci = {
+                .queueCreateInfoCount =
+                    static_cast<uint32_t>(queue_create_infos.size()),
+                .pQueueCreateInfos = queue_create_infos.data(),
+                // TODO: Fill exts
+            };
+            utils::vk_check(current_gpu.device().createDevice(
+                &dci, nullptr, &logical_device));
+        }
+
+        if (current_gpu.graphics_family_enabled())
+        {
+            if (current_gpu.get_graphics_queue_count() > 0)
+            {
+                graphics_queues.resize(current_gpu.get_graphics_queue_count(),
+                                       {});
+
+                for (uint32_t i = 0; i < graphics_queues.size(); ++i)
+                {
+                    vk::DeviceQueueInfo2 info = {
+                        .queueFamilyIndex =
+                            current_gpu.get_graphics_family_index(),
+                        .queueIndex = i,
+                    };
+                    logical_device.getQueue2(&info, &graphics_queues[i]);
+                }
+            }
+        }
+        if (current_gpu.compute_family_enabled())
+        {
+            if (current_gpu.get_compute_queue_count() > 0)
+            {
+                compute_queues.resize(current_gpu.get_compute_queue_count(),
+                                      {});
+
+                for (uint32_t i = 0; i < compute_queues.size(); ++i)
+                {
+                    vk::DeviceQueueInfo2 info = {
+                        .queueFamilyIndex =
+                            current_gpu.get_compute_family_index(),
+                        .queueIndex = i,
+                    };
+                    logical_device.getQueue2(&info, &compute_queues[i]);
+                }
+            }
+        }
     }
     std::vector<const char*> filter_instance(std::vector<const char*> requested,
                                              std::vector<const char*> avaliable)
@@ -273,13 +342,19 @@ private:
 
     SDL_Window* wnd {};
 
+    std::vector<const char*> instance_layers {};
+    std::vector<const char*> instance_ext {};
+
     vk::Instance   instance {};
     vk::SurfaceKHR surface {};
+    vk::Device     logical_device {};
 
     std::vector<const char*> requested_layers;
     std::vector<const char*> requested_ext;
 
     std::vector<vk::PhysicalDevice> phys_devices;
+    std::vector<vk::Queue>          graphics_queues;
+    std::vector<vk::Queue>          compute_queues;
     device::gpu                     current_gpu {};
 };
 } // namespace svl::platform::window
