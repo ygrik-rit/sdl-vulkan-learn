@@ -1,0 +1,20 @@
+module;
+export module svl.renderer;
+
+import std;
+import vulkan;
+
+namespace svl::renderer
+{
+class render_pass
+{
+    // render_pass(const std::vector<std::shared_ptr<Texture>> attachments,
+    //             const std::vector<vk::AttachmentLoadOp>&    load_op,
+    //             const std::vector<vk::AttachmentStoreOp>&   store_op,
+    //             const std::vector<vk::ImageLayout>&         layout,
+    //             vk::PipelineBindPoint                       bind_point,
+    //             const std::string&                          name)
+    // {
+    // }
+};
+} // namespace svl::renderer

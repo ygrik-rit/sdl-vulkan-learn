@@ -1,0 +1,70 @@
+module;
+export module svl.renderer.queue;
+
+import svl.utils;
+
+import vulkan;
+import std;
+
+export namespace svl::renderer::queue
+{
+class command_manager final
+{
+public:
+    explicit command_manager(vk::Device    logical_device,
+                             std::uint32_t queue_family_index,
+                             vk::Queue     queue)
+        : queue(queue)
+        , device(logical_device)
+    {
+        {
+            const vk::CommandPoolCreateInfo info = {
+                .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                .queueFamilyIndex = queue_family_index,
+            };
+            utils::vk_check(logical_device.createCommandPool(
+                &info, nullptr, &command_pool));
+        }
+        {
+            const vk::CommandBufferAllocateInfo info = {
+                .commandPool        = command_pool,
+                .level              = vk::CommandBufferLevel::ePrimary,
+                .commandBufferCount = 1,
+            };
+            utils::vk_check(
+                logical_device.allocateCommandBuffers(&info, &command_buffer));
+        }
+        {
+            const vk::FenceCreateInfo info = {
+                .flags = vk::FenceCreateFlagBits::eSignaled,
+            };
+            utils::vk_check(device.createFence(&info, nullptr, &fence));
+        }
+    }
+
+    void begin(const vk::CommandBufferBeginInfo* begin_info) const
+    {
+        utils::vk_check(command_buffer.begin(begin_info));
+    }
+    void end() const { command_buffer.end(); }
+
+    void submit(const vk::SubmitInfo* submit_info) const
+    {
+        utils::vk_check(device.resetFences(1, &fence));
+        utils::vk_check(queue.submit(1, submit_info, fence));
+    }
+    void wait()
+    {
+        utils::vk_check(device.waitForFences(
+            1, &fence, true, std::numeric_limits<std::uint32_t>::max()));
+        utils::vk_check(device.resetFences(1, &fence));
+    }
+
+private:
+    vk::CommandPool   command_pool {};
+    vk::CommandBuffer command_buffer {};
+    vk::Device        device {};
+    vk::Queue         queue {};
+    vk::Fence         fence {};
+};
+} // namespace svl::renderer::queue
