@@ -52,7 +52,7 @@ jobs:
       - name: Run tests to generate coverage information
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
-          ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/coverage
+          ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/tests-render
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |

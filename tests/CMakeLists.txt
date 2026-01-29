@@ -1,9 +1,14 @@
-if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-    add_library(coverage SHARED)
-else()
-    add_executable(coverage)
-endif()
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/external/Catch2/extras)
 
-target_sources(coverage PRIVATE coverage.cxx)
+include(CTest)
+include(Catch)
 
-target_link_libraries(coverage PRIVATE svl::svl svl::base)
+add_executable(tests-render)
+
+target_sources(tests-render PRIVATE renderer/shader_compile.cxx)
+target_link_libraries(
+    tests-render
+    PRIVATE svl::svl svl::base Catch2::Catch2WithMain
+)
+
+catch_discover_tests(tests-render)

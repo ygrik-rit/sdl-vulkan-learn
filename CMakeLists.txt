@@ -82,6 +82,3 @@ add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(example)
 add_subdirectory(tests)
-
-include(CTest)
-# add_test(NAME coverage COMMAND coverage_test)

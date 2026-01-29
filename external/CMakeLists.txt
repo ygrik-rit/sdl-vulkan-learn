@@ -35,9 +35,11 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 endif()
 # add_subdirectory(volk)
 
+# ios support https://github.com/gabime/spdlog/issues/2884
 if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
     # Not tested
     add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
 endif()
 
 add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(Catch2 EXCLUDE_FROM_ALL SYSTEM)
