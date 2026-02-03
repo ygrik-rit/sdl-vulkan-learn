@@ -10,7 +10,6 @@ export module svl.platform.window;
 import svl.platform.device;
 import svl.utils;
 
-import std;
 import vulkan;
 
 export namespace svl::platform::window

@@ -63,8 +63,8 @@ public:
 private:
     vk::CommandPool   command_pool {};
     vk::CommandBuffer command_buffer {};
-    vk::Device        device {};
     vk::Queue         queue {};
+    vk::Device        device {};
     vk::Fence         fence {};
 };
 } // namespace svl::renderer::queue

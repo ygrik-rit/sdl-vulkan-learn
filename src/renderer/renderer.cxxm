@@ -1,10 +1,12 @@
 module;
 export module svl.renderer;
 
-import std;
+export import svl.renderer.shader;
+export import svl.renderer.queue;
+
 import vulkan;
 
-namespace svl::renderer
+export namespace svl::renderer
 {
 class render_pass
 {

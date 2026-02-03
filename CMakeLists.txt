@@ -38,6 +38,7 @@ endif()
 
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+find_package(functions REQUIRED)
 find_package(options REQUIRED)
 
 configure_file(

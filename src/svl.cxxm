@@ -5,6 +5,7 @@ module;
 export module svl;
 
 export import svl.platform;
+export import svl.renderer;
 
 export namespace svl
 {

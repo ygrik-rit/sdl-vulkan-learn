@@ -3,5 +3,12 @@
     "sonarlint.connectedMode.project": {
         "connectionId": "ygrik-rit",
         "projectKey": "ygrik-rit_sdl-vulkan-learn"
-    }
+    },
+    "cmake.debugConfig": {
+        "type": "lldb",
+        "MIMode": "lldb",
+    },
+    "glsllint.glslangValidatorArgs": [
+        "-V"
+    ]
 }

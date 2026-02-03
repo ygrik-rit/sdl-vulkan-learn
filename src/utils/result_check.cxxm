@@ -2,7 +2,6 @@ module;
 #include <spdlog/spdlog.h>
 export module svl.utils;
 
-import std;
 import vulkan;
 
 export namespace svl::utils
