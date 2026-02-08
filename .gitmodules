@@ -19,3 +19,6 @@
 [submodule "external/Catch2"]
 	path = external/Catch2
 	url = https://github.com/catchorg/Catch2
+[submodule "external/argparse"]
+	path = external/argparse
+	url = https://github.com/p-ranav/argparse

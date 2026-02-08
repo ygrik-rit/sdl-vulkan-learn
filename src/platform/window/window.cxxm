@@ -213,7 +213,7 @@ private:
     {
         {
             VkSurfaceKHR vk_surface {};
-            if (SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface))
+            if (!SDL_Vulkan_CreateSurface(wnd, instance, nullptr, &vk_surface))
             {
                 spdlog::error("Cant create Vulkan Surface: {}", SDL_GetError());
                 throw window_error("Vulkan Surface create error");
