@@ -9,6 +9,10 @@ set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 
+set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+set(CMAKE_SKIP_INSTALL_RPATH OFF)
+set(CMAKE_SKIP_BUILD_RPATH OFF)
+
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
 set(CMAKE_CXX_MODULE_STD 1)
 
@@ -20,7 +24,7 @@ add_link_options(-fuse-ld=mold)
 
 project(
     sdl-vulkan-learn
-    VERSION 0.0.3.0
+    VERSION 0.0.4.0
     DESCRIPTION "blah blah blah"
     HOMEPAGE_URL "http://localhost"
     LANGUAGES C CXX
@@ -83,3 +87,10 @@ add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(example)
 add_subdirectory(tests)
+
+set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_VERBATIM_VARIABLES ON)
+set(CPACK_THREADS 4)
+
+set(CPACK_PACKAGE_ICON ${CMAKE_SOURCE_DIR}/src/svl.png)
+include(CPack)

@@ -12,3 +12,5 @@ target_link_libraries(
 )
 
 add_library(svl::svl ALIAS svl)
+
+install(TARGETS svl LIBRARY DESTINATION lib)
