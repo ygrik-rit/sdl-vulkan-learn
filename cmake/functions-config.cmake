@@ -29,7 +29,8 @@ function(svl_add_resources)
         )
         install(
             DIRECTORY ${folder}
-            DESTINATION $<TARGET_FILE_DIR:${ARG_TARGET}>/${ARG_DESTINATION}
+            # TODO: use share folder for resources in unix structure
+            DESTINATION bin/${ARG_DESTINATION}
         )
     endforeach()
     foreach(file ${ARG_FILES})

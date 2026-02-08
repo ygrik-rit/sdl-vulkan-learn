@@ -18,7 +18,7 @@ target_link_libraries(
 
 include(CTest)
 include(Catch)
-catch_discover_tests(tests-render)
+catch_discover_tests(tests-render WORKING_DIRECTORY $<TARGET_FILE_DIR:tests-render>)
 
 svl_add_resources(
     USE_SYMLINKS
@@ -29,14 +29,17 @@ svl_add_resources(
 install(
     TARGETS tests-render
     RUNTIME_DEPENDENCY_SET deps
-    RUNTIME DESTINATION tests
+    RUNTIME DESTINATION bin
 )
+install(CODE [[
+message(STATUS "Deps: ${deps}")
+]])
 install(
     RUNTIME_DEPENDENCY_SET
     deps
-    PRE_EXCLUDE_REGEXES
-        [[libc\.so\..*]]
-        [[libgcc_s\.so\..*]]
-        [[libm\.so\..*]]
-        [[libstdc\+\+\.so\..*]]
+    # PRE_EXCLUDE_REGEXES
+    #     [[libc\.so\..*]]
+    #     [[libgcc_s\.so\..*]]
+    #     [[libm\.so\..*]]
+    #     [[libstdc\+\+\.so\..*]]
 )

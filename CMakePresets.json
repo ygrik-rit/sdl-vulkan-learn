@@ -11,6 +11,7 @@
             "name": "base",
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/.build/${presetName}",
+            "installDir": "${sourceDir}/.install/${presetName}",
             "cacheVariables": {
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++"
@@ -19,16 +20,30 @@
     ],
     "buildPresets": [
         {
-            "name": "base-Debug",
+            "name": "base-RelWithDebInfo",
             "configurePreset": "base",
-            "configuration": "Debug"
+            "configuration": "RelWithDebInfo"
         }
     ],
-    "testPresets": [],
-    "packagePresets": [],
+    "testPresets": [
+        {
+            "name": "base-RelWithDebInfo",
+            "configurePreset": "base",
+            "configuration": "RelWithDebInfo"
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "base-RelWithDebInfo",
+            "configurePreset": "base",
+            "configurations": [
+                "RelWithDebInfo"
+            ]
+        }
+    ],
     "workflowPresets": [
         {
-            "name": "base-Debug",
+            "name": "base-RelWithDebInfo",
             "steps": [
                 {
                     "type": "configure",
@@ -36,7 +51,15 @@
                 },
                 {
                     "type": "build",
-                    "name": "base-Debug"
+                    "name": "base-RelWithDebInfo"
+                },
+                {
+                    "type": "test",
+                    "name": "base-RelWithDebInfo"
+                },
+                {
+                    "type": "package",
+                    "name": "base-RelWithDebInfo"
                 }
             ]
         }

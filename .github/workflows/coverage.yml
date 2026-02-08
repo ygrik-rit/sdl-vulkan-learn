@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PRESET: "base"
-      BUILD_TYPE: "Debug"
+      BUILD_TYPE: "RelWithDebInfo"
       BUILD_DIR: ${{ github.workspace }}/.build
       BUILD_WRAPPER_DIR: ${{ github.workspace }}/.build/wrapped
     steps:
@@ -48,11 +48,11 @@ jobs:
           cmake --preset ${{ env.PRESET }} -DSVL_COVERAGE=ON -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21 -DCMAKE_CXX_STDLIB_MODULES_JSON=/usr/lib/llvm-21/lib/libc++.modules.json
       - name: Run CMake build
         run: |
-          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_DIR }} cmake --build --preset base-Debug
+          build-wrapper-linux-x86-64 --out-dir ${{ env.BUILD_WRAPPER_DIR }} cmake --build --preset base-RelWithDebInfo
       - name: Run tests to generate coverage information
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
-          ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/tests-render
+          ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/RelWithDebInfo/tests-render
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: Collect the coverage
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
-          llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/Debug/coverage > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+          llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/RelWithDebInfo/coverage > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
         env:
