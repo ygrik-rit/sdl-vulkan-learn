@@ -6,6 +6,11 @@ set(SDL_X11 ${SVL_X11})
 set(SDL_DISABLE_INSTALL ON)
 add_subdirectory(SDL EXCLUDE_FROM_ALL SYSTEM)
 
+# Use our built of SPIRV-Tools instead system, for avoid
+# stdlib missmatch
+add_subdirectory(SPIRV-Headers EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(SPIRV-Tools EXCLUDE_FROM_ALL SYSTEM)
+
 set(ALLOW_EXTERNAL_SPIRV_TOOLS ON)
 set(ENABLE_OPT ON)
 add_subdirectory(Vulkan-Hpp/glslang EXCLUDE_FROM_ALL SYSTEM)
