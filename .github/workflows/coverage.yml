@@ -33,7 +33,8 @@ jobs:
                 libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev \
                 libpipewire-0.3-dev libwayland-dev libdecor-0-dev liburing-dev \
                 vulkan-sdk clang-21 mold libc++-21-dev libc++abi-21-dev libclang-rt-21-dev \
-                llvm-21-dev clang-tools-21 libclang-common-21-dev libclang-21-dev libclang1-21
+                llvm-21-dev clang-tools-21 libclang-common-21-dev libclang-21-dev libclang1-21 \
+                libunwind-dev
 
             
             sudo apt-get remove cmake
