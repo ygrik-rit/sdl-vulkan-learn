@@ -16,7 +16,6 @@ target_link_libraries(
     PRIVATE svl::svl svl::base Catch2::Catch2WithMain
 )
 
-include(CTest)
 include(Catch)
 catch_discover_tests(tests-render WORKING_DIRECTORY $<TARGET_FILE_DIR:tests-render>)
 
@@ -31,15 +30,4 @@ install(
     RUNTIME_DEPENDENCY_SET deps
     RUNTIME DESTINATION bin
 )
-install(CODE [[
-message(STATUS "Deps: ${deps}")
-]])
-install(
-    RUNTIME_DEPENDENCY_SET
-    deps
-    # PRE_EXCLUDE_REGEXES
-    #     [[libc\.so\..*]]
-    #     [[libgcc_s\.so\..*]]
-    #     [[libm\.so\..*]]
-    #     [[libstdc\+\+\.so\..*]]
-)
+install(RUNTIME_DEPENDENCY_SET deps)

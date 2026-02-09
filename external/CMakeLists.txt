@@ -45,6 +45,9 @@ if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
     add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
 endif()
 
-add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)
 add_subdirectory(Catch2 EXCLUDE_FROM_ALL SYSTEM)
 add_subdirectory(argparse EXCLUDE_FROM_ALL SYSTEM)
+
+# Small hack for use clang libunwind instead gnu unwind.
+set(CPPTRACE_UNWIND_WITH_LIBUNWIND ON)
+add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)

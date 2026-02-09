@@ -9,9 +9,10 @@ set(CMAKE_UNITY_BUILD OFF)
 set(CMAKE_UNITY_BUILD_BATCH_SIZE 32)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 
-set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
-set(CMAKE_SKIP_INSTALL_RPATH OFF)
-set(CMAKE_SKIP_BUILD_RPATH OFF)
+# set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+# set(CMAKE_SKIP_INSTALL_RPATH OFF)
+# set(CMAKE_SKIP_BUILD_RPATH OFF)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
 set(CMAKE_CXX_MODULE_STD 1)
@@ -21,6 +22,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 # Global use mold linker
 add_link_options(-fuse-ld=mold)
+add_link_options(-lc++abi)
 
 project(
     sdl-vulkan-learn
@@ -86,6 +88,8 @@ add_library(svl::base ALIAS svl_base)
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(example)
+
+include(CTest)
 add_subdirectory(tests)
 
 set(CPACK_SOURCE_GENERATOR "ZIP")
