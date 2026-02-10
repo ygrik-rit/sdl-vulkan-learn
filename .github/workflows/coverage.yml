@@ -80,3 +80,13 @@ jobs:
           args: >
             --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_DIR }}/compile_commands.json
             --define sonar.cfamily.llvm-cov.reportPath=${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "Coverage files"
+          path: >
+            ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+            ${{ env.BUILD_WRAPPER_DIR }}/compile_commands.json
+            ${{ env.BUILD_DIR }}/${{ env.PRESET }}/merged.profdata
+            ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/*.profraw
+
+          retention-days: 1
