@@ -21,36 +21,36 @@ class program final
 public:
     enum class language
     {
-        Vertex = EShLanguage::EShLangVertex,
-        // TessControl    = EShLanguage::EShLangTessControl,
-        // TessEvaluation = EShLanguage::EShLangTessEvaluation,
-        // Geometry       = EShLanguage::EShLangGeometry,
-        Fragment = EShLanguage::EShLangFragment,
-        Compute  = EShLanguage::EShLangCompute,
-        // RayGen         = EShLanguage::EShLangRayGen,
-        // RayGenNV       = EShLanguage::EShLangRayGenNV,
-        // Intersect      = EShLanguage::EShLangIntersect,
-        // IntersectNV    = EShLanguage::EShLangIntersectNV,
-        // AnyHit         = EShLanguage::EShLangAnyHit,
-        // AnyHitNV       = EShLanguage::EShLangAnyHitNV,
-        // ClosestHit     = EShLanguage::EShLangClosestHit,
-        // ClosestHitNV   = EShLanguage::EShLangClosestHitNV,
-        // Miss           = EShLanguage::EShLangMiss,
-        // MissNV         = EShLanguage::EShLangMissNV,
-        // Callable       = EShLanguage::EShLangCallable,
-        // CallableNV     = EShLanguage::EShLangCallableNV,
-        // Task           = EShLanguage::EShLangTask,
-        // TaskNV         = EShLanguage::EShLangTaskNV,
-        // Mesh           = EShLanguage::EShLangMesh,
-        // MeshNV         = EShLanguage::EShLangMeshNV,
-        // last           = EShLanguage::EShLangCount,
+        Vertex         = EShLanguage::EShLangVertex,
+        TessControl    = EShLanguage::EShLangTessControl,
+        TessEvaluation = EShLanguage::EShLangTessEvaluation,
+        Geometry       = EShLanguage::EShLangGeometry,
+        Fragment       = EShLanguage::EShLangFragment,
+        Compute        = EShLanguage::EShLangCompute,
+        RayGen         = EShLanguage::EShLangRayGen,
+        RayGenNV       = EShLanguage::EShLangRayGenNV,
+        Intersect      = EShLanguage::EShLangIntersect,
+        IntersectNV    = EShLanguage::EShLangIntersectNV,
+        AnyHit         = EShLanguage::EShLangAnyHit,
+        AnyHitNV       = EShLanguage::EShLangAnyHitNV,
+        ClosestHit     = EShLanguage::EShLangClosestHit,
+        ClosestHitNV   = EShLanguage::EShLangClosestHitNV,
+        Miss           = EShLanguage::EShLangMiss,
+        MissNV         = EShLanguage::EShLangMissNV,
+        Callable       = EShLanguage::EShLangCallable,
+        CallableNV     = EShLanguage::EShLangCallableNV,
+        Task           = EShLanguage::EShLangTask,
+        TaskNV         = EShLanguage::EShLangTaskNV,
+        Mesh           = EShLanguage::EShLangMesh,
+        MeshNV         = EShLanguage::EShLangMeshNV,
+        Count          = EShLanguage::EShLangCount,
     };
 
     explicit program() = default;
 
     std::vector<char> glsl_to_spirv(const std::filesystem::path& path,
                                     const language               lang,
-                                    const std::string&           entry_point)
+                                    const std::string& entry_point) const
     {
         static bool glslang_initialized = false;
         if (!glslang_initialized)
