@@ -61,7 +61,7 @@ jobs:
       - name: Collect the coverage
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
-          llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/coverage > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+          llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/tests-render > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
         env:
