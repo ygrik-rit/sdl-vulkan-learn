@@ -59,7 +59,7 @@ jobs:
         run: |
           llvm-profdata-21 merge -o merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/*.profraw
       - name: Collect the coverage
-        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
           llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/coverage > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
       - name: SonarQube Scan
