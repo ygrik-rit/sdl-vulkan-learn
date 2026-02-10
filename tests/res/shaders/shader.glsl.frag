@@ -1,5 +1,5 @@
 // https://www.shadertoy.com/view/4tcXRr
-#version 460
+#version 450
 precision highp float;
 
 layout(set = 0, binding = 0) uniform uniformBuffer0
@@ -11,6 +11,8 @@ layout(set = 0, binding = 0) uniform uniformBuffer0
 ubo_0;
 
 layout(set = 1, binding = 0) uniform sampler2D iChannel0;
+
+layout(location = 0) out vec4 fragColor;
 
 vec3 rotateY(vec3 v, float t)
 {
@@ -28,7 +30,7 @@ float smin(float a, float b, float k)
 float noise(vec3 p)
 {
 
-    float t  = iTime;
+    float t  = ubo_0.iTime;
     vec3  np = normalize(p);
 
     // kind of bi-planar mapping
@@ -68,11 +70,11 @@ float color(vec3 p)
     return 0.;
 }
 
-void main(out vec4 fragColor, in vec2 fragCoord)
+void main()
 {
     // Ray from UV
-    vec2 uv = fragCoord.xy * 2.0 / iResolution.xy - 1.0;
-    uv.x *= iResolution.x / iResolution.y;
+    vec2 uv = gl_FragCoord.xy * 2.0 / ubo_0.iResolution.xy - 1.0;
+    uv.x *= ubo_0.iResolution.x / ubo_0.iResolution.y;
     vec3 ray = normalize(vec3(1. * uv.x, 1. * uv.y, 1.));
 
     // Color
@@ -87,14 +89,14 @@ void main(out vec4 fragColor, in vec2 fragCoord)
         vec3 p = vec3(0, 0, -3.) + ray * t;
 
         // Rotation
-        p = rotateY(p, iMouse.x / iResolution.x * 2. * 3.14);
-        p = rotateY(p, iTime / 3.);
+        p = rotateY(p, ubo_0.iMouse.x / ubo_0.iResolution.x * 2. * 3.14);
+        p = rotateY(p, ubo_0.iTime / 3.);
 
         // Deformation
         float mask = max(0., (1. - length(p / 3.)));
-        p          = rotateY(p, mask * sin(iTime / 2.) * 1.2);
-        p.y += sin(iTime + p.x) * mask * .5;
-        p *= 1.1 + (sin(iTime / 2.) * mask * .3);
+        p          = rotateY(p, mask * sin(ubo_0.iTime / 2.) * 1.2);
+        p.y += sin(ubo_0.iTime + p.x) * mask * .5;
+        p *= 1.1 + (sin(ubo_0.iTime / 2.) * mask * .3);
 
         // distance
         float d = map(p);
@@ -109,7 +111,7 @@ void main(out vec4 fragColor, in vec2 fragCoord)
             ao = 1. - ao;
 
             float mask = max(0., (1. - length(p / 2.)));
-            mask *= abs(sin(iTime * -1.5 + length(p) + p.x) - .2);
+            mask *= abs(sin(ubo_0.iTime * -1.5 + length(p) + p.x) - .2);
             color +=
                 2. * vec3(.1, 1., .8) * max(0., (noise(p) * 4. - 2.6)) * mask;
             color += vec3(.1, .5, .6) * ao * 6.;
@@ -127,7 +129,7 @@ void main(out vec4 fragColor, in vec2 fragCoord)
 
     // vignetting effect by Ippokratis
     // https://www.shadertoy.com/view/lsKSWR
-    uv = fragCoord.xy / iResolution.xy;
+    uv = gl_FragCoord.xy / ubo_0.iResolution.xy;
     uv *= 1.0 - uv.yx;
     float vig = uv.x * uv.y * 20.0;
     vig       = pow(vig, 0.25);

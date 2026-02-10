@@ -84,7 +84,7 @@ public:
         tshader.setEnvInput(glslang::EShSourceGlsl,
                             static_cast<EShLanguage>(lang),
                             glslang::EShClientVulkan,
-                            460);
+                            450);
         tshader.setEnvClient(glslang::EShClientVulkan, client_version);
         tshader.setEnvTarget(glslang::EShTargetSpv, lang_version);
         tshader.setEntryPoint(entry_point.c_str());
@@ -99,7 +99,7 @@ public:
 
         std::string preprocessed_glsl;
         if (!tshader.preprocess(resources,
-                                460,
+                                450,
                                 ENoProfile,
                                 false,
                                 false,
@@ -111,13 +111,26 @@ public:
                          data,
                          tshader.getInfoLog(),
                          tshader.getInfoDebugLog());
-            ASSERT(false, "includes are forbidden");
+            ASSERT(false, "Shader preprocess failed");
+            return {};
+        }
+        const char* preprocessed_glsl_str = preprocessed_glsl.data();
+        tshader.setStrings(&preprocessed_glsl_str, 1);
+
+        if (!tshader.parse(
+                resources, 450, ENoProfile, false, false, messages, includer))
+        {
+            spdlog::info("Parse failed for shader:\n{}\n{}\n{}",
+                         preprocessed_glsl,
+                         tshader.getInfoLog(),
+                         tshader.getInfoDebugLog());
+            ASSERT(false, "Shader parse failed");
             return {};
         }
 
         glslang::SpvOptions options;
 
-        if (constants::is_debug_build)
+        if constexpr (constants::is_debug_build)
         {
             tshader.setDebugInfo(true);
             options.generateDebugInfo = true;
