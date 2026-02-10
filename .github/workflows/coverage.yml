@@ -55,9 +55,9 @@ jobs:
         run: |
           ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/tests-render
       - name: Merge counters from different runs and convert the result into an llvm-cov-compatible form
-        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
-          llvm-profdata-21 merge -o merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/*.profraw
+          llvm-profdata-21 merge -o merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/*.profraw
       - name: Collect the coverage
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}
         run: |
