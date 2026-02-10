@@ -9,10 +9,12 @@ add_subdirectory(SDL EXCLUDE_FROM_ALL SYSTEM)
 # Use our built of SPIRV-Tools instead system, for avoid
 # stdlib missmatch
 add_subdirectory(SPIRV-Headers EXCLUDE_FROM_ALL SYSTEM)
+set(SPIRV_SKIP_EXECUTABLES ON)
+set(SPIRV_SKIP_TESTS ON)
 add_subdirectory(SPIRV-Tools EXCLUDE_FROM_ALL SYSTEM)
 
 set(ALLOW_EXTERNAL_SPIRV_TOOLS ON)
-set(ENABLE_OPT ON)
+set(GLSLANG_TESTS OFF)
 add_subdirectory(Vulkan-Hpp/glslang EXCLUDE_FROM_ALL SYSTEM)
 
 set(VULKAN_HPP_BUILD_WITH_LOCAL_VULKAN_HPP ON)
