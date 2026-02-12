@@ -59,3 +59,8 @@ add_subdirectory(argparse EXCLUDE_FROM_ALL SYSTEM)
 # Small hack for use clang libunwind instead gnu unwind.
 set(CPPTRACE_UNWIND_WITH_LIBUNWIND ON)
 add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)
+
+set(KTX_FEATURE_TESTS OFF)
+set(KTX_FEATURE_TOOLS OFF)
+add_subdirectory(KTX-Software EXCLUDE_FROM_ALL SYSTEM)
+add_library(KTX::ktx ALIAS ktx)

@@ -1,0 +1,9 @@
+module;
+export module svl.renderer.utils:texture;
+
+export namespace svl::renderer::utils
+{
+class texture final
+{
+};
+} // namespace svl::renderer::utils

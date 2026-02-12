@@ -14,7 +14,7 @@ import vulkan;
 
 export namespace svl::platform::window
 {
-class window_error : public std::exception
+class window_error final : public std::exception
 {
 public:
     explicit window_error(std::string_view msg)

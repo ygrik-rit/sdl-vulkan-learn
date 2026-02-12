@@ -3,20 +3,21 @@ export module svl.renderer;
 
 export import svl.renderer.shader;
 export import svl.renderer.queue;
+export import svl.renderer.utils;
 
 import vulkan;
 
 export namespace svl::renderer
 {
-class render_pass
+class render_pass final
 {
-    // render_pass(const std::vector<std::shared_ptr<Texture>> attachments,
-    //             const std::vector<vk::AttachmentLoadOp>&    load_op,
-    //             const std::vector<vk::AttachmentStoreOp>&   store_op,
-    //             const std::vector<vk::ImageLayout>&         layout,
-    //             vk::PipelineBindPoint                       bind_point,
-    //             const std::string&                          name)
-    // {
-    // }
+    render_pass(const std::vector<std::shared_ptr<utils::texture>> attachments,
+                const std::vector<vk::AttachmentLoadOp>&           load_op,
+                const std::vector<vk::AttachmentStoreOp>&          store_op,
+                const std::vector<vk::ImageLayout>&                layout,
+                vk::PipelineBindPoint                              bind_point,
+                const std::string&                                 name)
+    {
+    }
 };
 } // namespace svl::renderer

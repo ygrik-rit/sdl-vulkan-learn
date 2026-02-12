@@ -32,7 +32,6 @@ project(
     LANGUAGES C CXX
 )
 
-# Avoid scanning std.cc 
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 if(NOT TARGET __CMAKE::CXX23)
