@@ -62,15 +62,20 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
         run: |
           llvm-cov-21 show --show-branches=count --instr-profile merged.profdata ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/tests-render > ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
+      - name: CPack tests
+        working-directory: ${{ env.BUILD_DIR }}/${{ env.PRESET }}
+        run: |
+          cpack -C ${{ env.BUILD_TYPE }}
       - name: "Upload artifacts"
         uses: actions/upload-artifact@v4
         with:
           name: "Coverage files"
-          path: >
+          path: |
             ${{ env.BUILD_DIR }}/${{ env.PRESET }}/coverage.txt
             ${{ env.BUILD_WRAPPER_DIR }}/compile_commands.json
             ${{ env.BUILD_DIR }}/${{ env.PRESET }}/merged.profdata
             ${{ env.BUILD_DIR }}/${{ env.PRESET }}/tests/${{ env.BUILD_TYPE }}/*.profraw
+            ${{ env.BUILD_DIR }}/${{ env.PRESET }}/_CPack_Packages/
           retention-days: 1
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9
