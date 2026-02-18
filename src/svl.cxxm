@@ -13,15 +13,24 @@ export namespace svl
 int run()
 {
     using namespace svl;
-    platform::window::context core_window(
-        constants::appdata::title, 480, 360, 0);
-
-    core_window.create({}, { "VK_KHR_wayland_surface", "VK_KHR_surface" });
-
-    while (core_window.is_running())
+    try
     {
-        core_window.poll_event();
+        platform::window::context core_window(
+            constants::appdata::title, 480, 360, 0);
+
+        core_window.create({}, { "VK_KHR_wayland_surface", "VK_KHR_surface" });
+
+        while (core_window.is_running())
+        {
+            core_window.poll_event();
+        }
     }
+    catch (platform::window::window_error err)
+    {
+        spdlog::error("Cant init windows: {}", err.what());
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
 } // namespace svl

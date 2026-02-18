@@ -1,9 +1,19 @@
 module;
 export module svl.renderer.utils:texture;
 
+import vulkan;
+
 export namespace svl::renderer::utils
 {
 class texture final
 {
+public:
+    texture(std::filesystem::path texture_path)
+        : path(texture_path)
+    {
+    }
+
+private:
+    std::filesystem::path path;
 };
 } // namespace svl::renderer::utils

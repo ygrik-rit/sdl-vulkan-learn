@@ -16,6 +16,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
 set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
 set(CMAKE_CXX_MODULE_STD 1)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -31,8 +32,6 @@ project(
     HOMEPAGE_URL "http://localhost"
     LANGUAGES C CXX
 )
-
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 if(NOT TARGET __CMAKE::CXX23)
     message(
@@ -85,6 +84,10 @@ target_include_directories(
 add_library(svl::base ALIAS svl_base)
 
 add_subdirectory(external)
+
+# skip analyze external libs
+set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+
 add_subdirectory(src)
 add_subdirectory(example)
 

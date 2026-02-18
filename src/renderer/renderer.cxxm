@@ -1,4 +1,5 @@
 module;
+#include <libassert/assert.hpp>
 export module svl.renderer;
 
 export import svl.renderer.shader;
@@ -6,6 +7,7 @@ export import svl.renderer.queue;
 export import svl.renderer.utils;
 
 import vulkan;
+import libassert;
 
 export namespace svl::renderer
 {
@@ -18,6 +20,18 @@ class render_pass final
                 vk::PipelineBindPoint                              bind_point,
                 const std::string&                                 name)
     {
+        ASSERT(attachments.size() == load_op.size() &&
+                   attachments.size() == store_op.size() &&
+                   attachments.size() == layout.size(),
+               "The sizes of the attachments and their load "
+               "and store operations and final layouts "
+               "must match");
+        [[maybe_unused]] std::vector<vk::AttachmentDescription>
+            attachment_descriptors;
+        [[maybe_unused]] std::vector<vk::AttachmentReference>
+            color_attachment_references;
+        [[maybe_unused]] std::optional<vk::AttachmentReference>
+            depth_stencil_attachment_reference;
     }
 };
 } // namespace svl::renderer

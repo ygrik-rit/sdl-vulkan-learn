@@ -15,3 +15,18 @@ InlayHints:
   TypeNameLimit: 0 # 0 - mean no limit
 Completion:
   HeaderInsertion: Never # It not correct work for module code, useless
+Style:
+  QuotedHeaders: "src/.*"
+  AngledHeaders: ['/usr/.*', './external/.*']
+# Documentation:
+#   CommentFormat: Doxygen
+If:
+  PathMatch: [ .*\.cppm, .*\.cxxm, .*\.cxx, .*\.cpp ]
+CompileFlags:
+  Add: [-std=c++23]
+  Compiler: clang++
+---
+If:
+  PathMatch: [ .*\.c, .*\.cc ]
+CompileFlags:
+  Compiler: clang

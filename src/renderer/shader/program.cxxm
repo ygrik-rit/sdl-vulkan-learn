@@ -48,9 +48,10 @@ public:
 
     explicit program() = default;
 
-    std::vector<char> glsl_to_spirv(const std::filesystem::path& path,
-                                    const language               lang,
-                                    const std::string& entry_point) const
+    [[nodiscard]] std::vector<char> glsl_to_spirv(
+        const std::filesystem::path& path,
+        const language               lang,
+        const std::string&           entry_point) const
     {
         static bool glslang_initialized = false;
         if (!glslang_initialized)

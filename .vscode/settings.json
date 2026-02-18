@@ -10,5 +10,8 @@
     },
     "glsllint.glslangValidatorArgs": [
         "-V"
+    ],
+    "clangd.arguments": [
+        "--experimental-modules-support"
     ]
 }

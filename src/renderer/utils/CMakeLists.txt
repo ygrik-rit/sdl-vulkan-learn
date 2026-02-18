@@ -7,6 +7,9 @@ target_sources(
             TYPE CXX_MODULES
             FILES texture/texture.cxxm utils.cxxm
 )
-target_link_libraries(renderer_utils PRIVATE svl::base KTX::ktx)
+target_link_libraries(
+    renderer_utils
+    PRIVATE svl::base KTX::ktx Vulkan::HppModule
+)
 
 add_library(svl::renderer::utils ALIAS renderer_utils)
