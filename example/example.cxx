@@ -8,21 +8,12 @@ import std;
 
 int main(int argc, char* argv[])
 {
+    argparse::ArgumentParser program("svl");
+    program.add_argument("-r", "--res").help("Path to resource folder");
+
     try
     {
-        argparse::ArgumentParser program("svl");
-        program.add_argument("-r", "--res").help("Path to resource folder");
         program.parse_args(argc, argv);
-        if (program.is_used("--res"))
-        {
-            spdlog::info("Parsed arguments:\n Resource folder = {}",
-                         program.get<std::string>("--res"));
-        }
-    }
-    catch (const std::bad_array_new_length& err)
-    {
-        spdlog::error("Error create parser: {}", err.what());
-        return EXIT_FAILURE;
     }
     catch (const std::exception& err)
     {
@@ -30,6 +21,12 @@ int main(int argc, char* argv[])
                       err.what(),
                       program.help().str());
         return EXIT_FAILURE;
+    }
+
+    if (program.is_used("--res"))
+    {
+        spdlog::info("Parsed arguments:\n Resource folder = {}",
+                     program.get<std::string>("--res"));
     }
 
     spdlog::info("SDL-Vulkan Learn version: {}", svl::version::version);

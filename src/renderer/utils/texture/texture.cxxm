@@ -9,7 +9,7 @@ class texture final
 {
 public:
     texture(std::filesystem::path texture_path)
-        : path(texture_path)
+        : path(std::move(texture_path))
     {
     }
 

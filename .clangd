@@ -2,7 +2,7 @@ Hover:
   ShowAKA: Yes
 Diagnostics:
   UnusedIncludes: Strict
-  Suppress: ['/usr/*', './external/']
+  Suppress: ['/usr/', './external/', '.build/']
 Index:
   Background: Build
   StandardLibrary: Yes
