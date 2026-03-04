@@ -9,7 +9,10 @@ file(
     CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/res/*"
 )
-target_sources(tests-render PRIVATE renderer/shader_compile.cxx)
+target_sources(
+    tests-render
+    PRIVATE renderer/shader_compile.cxx renderer/texture_load.cxx
+)
 
 target_link_libraries(
     tests-render

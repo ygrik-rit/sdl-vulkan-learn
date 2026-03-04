@@ -1,8 +1,7 @@
 function(svl_add_resources)
     # gersemi: hints { TARGET: pairs, DESTINATION: pairs, FOLDERS: sort+unique, FILES: sort+unique }
     cmake_parse_arguments(
-        PARSE_ARGV
-        0
+        PARSE_ARGV 0
         "ARG"
         "USE_SYMLINKS"
         "TARGET;DESTINATION"

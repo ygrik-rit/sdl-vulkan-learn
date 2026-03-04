@@ -7,7 +7,11 @@ target_sources(
     PUBLIC
         FILE_SET renderer_module
             TYPE CXX_MODULES
-            FILES shader/program.cxxm queue/command_manager.cxxm renderer.cxxm
+            FILES
+                shader/program.cxxm
+                queue/command_manager.cxxm
+                renderer.cxxm
+                buffer/manager.cxxm
 )
 target_link_libraries(
     renderer

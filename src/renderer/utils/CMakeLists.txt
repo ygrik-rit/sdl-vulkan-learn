@@ -1,4 +1,4 @@
-add_library(renderer_utils OBJECT)
+add_library(renderer_utils STATIC)
 
 target_sources(
     renderer_utils
