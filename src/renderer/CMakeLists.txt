@@ -12,16 +12,18 @@ target_sources(
                 queue/command_manager.cxxm
                 renderer.cxxm
                 buffer/manager.cxxm
+                texture/texture.cxxm
 )
 target_link_libraries(
     renderer
     PRIVATE
+        KTX::ktx
         Vulkan::HppModule
         glslang::SPIRV
         glslang::glslang
         glslang::glslang-default-resource-limits
         svl::base
-        svl::renderer::utils
+        svl::platform
         svl::utils
 )
 

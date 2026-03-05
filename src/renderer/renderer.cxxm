@@ -4,7 +4,7 @@ export module svl.renderer;
 
 export import svl.renderer.shader;
 export import svl.renderer.queue;
-export import svl.renderer.utils;
+export import svl.renderer.texture;
 
 import vulkan;
 import libassert;
@@ -13,12 +13,12 @@ export namespace svl::renderer
 {
 class render_pass final
 {
-    render_pass(const std::vector<std::shared_ptr<utils::texture>> attachments,
-                const std::vector<vk::AttachmentLoadOp>&           load_op,
-                const std::vector<vk::AttachmentStoreOp>&          store_op,
-                const std::vector<vk::ImageLayout>&                layout,
-                vk::PipelineBindPoint                              bind_point,
-                const std::string&                                 name)
+    render_pass(const std::vector<std::shared_ptr<texture>> attachments,
+                const std::vector<vk::AttachmentLoadOp>&    load_op,
+                const std::vector<vk::AttachmentStoreOp>&   store_op,
+                const std::vector<vk::ImageLayout>&         layout,
+                vk::PipelineBindPoint                       bind_point,
+                const std::string&                          name)
     {
         ASSERT(attachments.size() == load_op.size() &&
                    attachments.size() == store_op.size() &&

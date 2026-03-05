@@ -1,8 +1,6 @@
 module;
 export module svl.renderer.utils;
 
-export import :texture;
-
 export namespace svl::renderer::utils
 {
 } // namespace svl::renderer::utils

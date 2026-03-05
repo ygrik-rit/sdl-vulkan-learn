@@ -1,16 +1,19 @@
 module;
 #include <ktx.h>
-export module svl.renderer.utils:texture;
+export module svl.renderer.texture;
 
 import vulkan;
 
-export namespace svl::renderer::utils
+import svl.renderer.buffer;
+import svl.platform.device;
+
+export namespace svl::renderer
 {
 
 class texture final
 {
 public:
-    texture(std::filesystem::path texture_path)
+    texture(std::filesystem::path texture_path, vk::raii::Device device)
         : path(std::move(texture_path))
     {
         KTX_error_code result = ktxTexture2_CreateFromNamedFile(
@@ -28,16 +31,17 @@ public:
 
         texture_format = static_cast<vk::Format>(ktexture->vkFormat);
 
-        // utils::create_buffer(image_size,
-        //                      vk::BufferUsageFlagBits::eTransferSrc,
-        //                      vk::MemoryPropertyFlagBits::eHostVisible |
-        //                          vk::MemoryPropertyFlagBits::eHostCoherent,
-        //                      staging_buffer,
-        //                      staging_buffer_memory);
+        buffer::create(vk::Device device,
+                       image_size,
+                       vk::BufferUsageFlagBits::eTransferSrc,
+                       vk::MemoryPropertyFlagBits::eHostVisible |
+                           vk::MemoryPropertyFlagBits::eHostCoherent,
+                       staging_buffer,
+                       staging_buffer_memory);
 
-        // void* data = staging_buffer_memory.mapMemory(0, image_size);
-        // std::memcpy(data, ktx_texture_data, image_size);
-        // staging_buffer_memory.unmapMemory();
+        void* data = staging_buffer_memory.mapMemory(0, image_size);
+        std::memcpy(data, ktx_texture_data, image_size);
+        staging_buffer_memory.unmapMemory();
 
         ktxTexture2_Destroy(ktexture);
     }
@@ -56,4 +60,4 @@ private:
     vk::raii::Buffer       staging_buffer        = { {} };
     vk::raii::DeviceMemory staging_buffer_memory = { {} };
 };
-} // namespace svl::renderer::utils
+} // namespace svl::renderer

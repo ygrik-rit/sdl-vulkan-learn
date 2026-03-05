@@ -1,3 +1,10 @@
 FROM archlinux:multilib-devel
 
-RUN pacman -Suy --noconfirm cmake clang ninja mold libc++
+
+RUN addgroup -S builder \
+    && adduser -S builder -G builder \
+    && pacman -Suy --noconfirm cmake clang ninja mold libc++
+
+USER builder
+
+ENTRYPOINT ["/opt/svl"]

@@ -4,7 +4,7 @@
 
 #include "svl_config.hxx"
 
-import svl.renderer.utils;
+import svl.renderer.texture;
 
 import std;
 
