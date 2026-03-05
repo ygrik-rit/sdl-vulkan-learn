@@ -48,15 +48,12 @@ target_compile_definitions(
 # add_subdirectory(volk)
 
 # ios support https://github.com/gabime/spdlog/issues/2884
-if(NOT spdlog_FOUND OR SVL_DEBUG_3RDPARTY)
-    # Not tested
-    add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
-endif()
+add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
 
 add_subdirectory(Catch2 EXCLUDE_FROM_ALL SYSTEM)
 add_subdirectory(argparse EXCLUDE_FROM_ALL SYSTEM)
 
-# Small hack for use clang libunwind instead gnu unwind.
+# Small hack for use clang libunwind instead gnu unwind inside libassert.
 set(CPPTRACE_UNWIND_WITH_LIBUNWIND ON)
 add_subdirectory(libassert EXCLUDE_FROM_ALL SYSTEM)
 
