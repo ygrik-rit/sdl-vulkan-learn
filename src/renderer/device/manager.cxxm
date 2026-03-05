@@ -14,12 +14,12 @@ std::uint32_t find_memory_type(std::uint32_t           type_filter,
     return 0;
 }
 
-void create(const std::shared_ptr<vk::raii::Device>& device,
-            vk::DeviceSize                           size,
-            vk::BufferUsageFlags                     usage,
-            vk::MemoryPropertyFlags                  properties,
-            vk::raii::Buffer&                        buffer,
-            vk::raii::DeviceMemory&                  buffer_memory)
+void create(const vk::raii::Device& device,
+            vk::DeviceSize          size,
+            vk::BufferUsageFlags    usage,
+            vk::MemoryPropertyFlags properties,
+            vk::raii::Buffer&       buffer,
+            vk::raii::DeviceMemory& buffer_memory)
 {
     vk::BufferCreateInfo buffer_info {
         .size = size, .usage = usage, .sharingMode = vk::SharingMode::eExclusive

@@ -336,9 +336,9 @@ private:
     std::vector<const char*> instance_layers {};
     std::vector<const char*> instance_ext {};
 
-    vk::Instance   instance {};
-    vk::SurfaceKHR surface {};
-    vk::Device     logical_device {};
+    vk::Instance                      instance {};
+    vk::SurfaceKHR                    surface {};
+    std::shared_ptr<vk::raii::Device> logical_device {};
 
     std::vector<const char*> requested_layers;
     std::vector<const char*> requested_ext;

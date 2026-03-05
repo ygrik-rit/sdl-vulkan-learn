@@ -61,10 +61,10 @@ public:
     }
 
 private:
-    vk::CommandPool   command_pool {};
-    vk::CommandBuffer command_buffer {};
-    vk::Queue         queue {};
-    vk::Device        device {};
-    vk::Fence         fence {};
+    vk::CommandPool                   command_pool {};
+    vk::CommandBuffer                 command_buffer {};
+    vk::Queue                         queue {};
+    std::shared_ptr<vk::raii::Device> device {};
+    vk::Fence                         fence {};
 };
 } // namespace svl::renderer::queue
