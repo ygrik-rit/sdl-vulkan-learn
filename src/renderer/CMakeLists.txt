@@ -12,6 +12,7 @@ target_sources(
                 queue/command_manager.cxxm
                 renderer.cxxm
                 buffer/manager.cxxm
+                device/manager.cxxm
                 texture/texture.cxxm
 )
 target_link_libraries(

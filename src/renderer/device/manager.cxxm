@@ -1,36 +1,88 @@
 module;
-export module svl.renderer.buffer;
+export module svl.renderer.device;
 
 import vulkan;
 import std;
 
-export namespace svl::renderer::buffer
+export namespace svl::renderer::device
 {
-std::uint32_t find_memory_type(std::uint32_t           type_filter,
-                               vk::MemoryPropertyFlags properties)
+class manager
 {
-    // vk::PhysicalDeviceMemoryProperties mem_properties =
-    //     physicalDevice.getMemoryProperties();
-    return 0;
-}
+public:
+    manager()                      = delete;
+    manager(const manager&)        = delete;
+    ~manager()                     = default;
+    void operator=(const manager&) = delete;
 
-void create(const vk::raii::Device& device,
-            vk::DeviceSize          size,
-            vk::BufferUsageFlags    usage,
-            vk::MemoryPropertyFlags properties,
-            vk::raii::Buffer&       buffer,
-            vk::raii::DeviceMemory& buffer_memory)
-{
-    vk::BufferCreateInfo buffer_info {
-        .size = size, .usage = usage, .sharingMode = vk::SharingMode::eExclusive
-    };
-    buffer = vk::raii::Buffer(device.get(), buffer_info);
-    vk::MemoryRequirements mem_requirements = buffer.getMemoryRequirements();
-    vk::MemoryAllocateInfo alloc_info { .allocationSize = mem_requirements.size,
-                                        .memoryTypeIndex = find_memory_type(
-                                            mem_requirements.memoryTypeBits,
-                                            properties) };
-    buffer_memory = vk::raii::DeviceMemory(device, alloc_info);
-    buffer.bindMemory(*buffer_memory, 0);
-}
-} // namespace svl::renderer::buffer
+    static void init(const vk::raii::Instance&   vk_instance,
+                     const vk::raii::SurfaceKHR& vk_surface,
+                     const std::vector&          requested_extensions)
+    {
+        if (instance)
+        {
+            throw std::runtime_error("App already initialized");
+        }
+        instance = new manager(vk_instance, vk_surface, requested_extensions);
+    }
+
+    [[nodiscard]] static manager* get_instance() noexcept { return instance; }
+
+    [[nodiscard]] std::vector<std::string> get_avaliable() const noexcept
+    {
+        return pd_names;
+    }
+    void create(const std::string&          pd_name,
+                const vk::DeviceCreateInfo& device_create_info)
+    {
+        auto it = std::find(pd_names.begin(), pd_names.end(), pd_name);
+
+        if (it == pd_names.end())
+        {
+            throw std::invalid_argument(
+                std::format("Device with name {} not found.", pd_name));
+        }
+
+        int index = std::distance(pd_names.begin(), it);
+
+        devices.push_back(
+            vk::raii::Device(physical_devices[index], device_create_info));
+    }
+    // void disable(const std::string& pd_name) {}
+    // void remove(const std::string& pd_name) {}
+
+private:
+    explicit manager(const vk::raii::Instance&   vk_instance,
+                     const vk::raii::SurfaceKHR& vk_surface,
+                     const std::vector&          requested_extensions)
+    {
+        physical_devices = vk::raii::PhysicalDevices(vk_instance);
+
+        proeprty_chains =
+            std::views::transform(physical_devices,
+                                  &vk::raii::PhysicalDevice::getProperties2<
+                                      vk::PhysicalDeviceProperties2>);
+        pd_properties = std::views::transform(
+            proeprty_chains,
+            &vk::StructureChain::get<vk::PhysicalDeviceProperties2>);
+
+        pd_names = pd_properties |
+                   std::views::transform(
+                       &vk::PhysicalDeviceProperties2::properties::deviceName) |
+                   std::views::to<std::vector<std::string>>();
+    }
+
+    static manager*   instance = nullptr;
+    static std::mutex mutex;
+
+    vk::raii::PhysicalDevice physical_devices {};
+
+    std::vector<vk::StructureChain<vk::PhysicalDeviceProperties2>>
+        proeprty_chains {};
+
+    std::vector<vk::PhysicalDeviceProperties2> pd_properties {};
+    std::vector<std::string>                   pd_names {};
+
+    std::vector<vk::raii::Device> devices;
+};
+
+} // namespace svl::renderer::device

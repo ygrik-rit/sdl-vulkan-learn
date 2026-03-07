@@ -5,6 +5,7 @@ export module svl.renderer;
 export import svl.renderer.shader;
 export import svl.renderer.queue;
 export import svl.renderer.texture;
+export import svl.renderer.device;
 
 import vulkan;
 import libassert;
