@@ -7,7 +7,8 @@ module;
 #include "svl_config.hxx"
 export module svl.platform.window;
 
-import svl.platform.device;
+// import svl.platform.device;
+import svl.renderer.device;
 import svl.utils;
 
 import vulkan;
@@ -122,7 +123,8 @@ public:
         // Vulkan
         init_instance();
         init_surface();
-        init_gpu();
+
+        manager_gpu = rednerer::device::manager();
 
         running = true;
     }
@@ -207,7 +209,7 @@ private:
             .enabledExtensionCount = static_cast<uint32_t>(instance_ext.size()),
             .ppEnabledExtensionNames = instance_ext.data(),
         };
-        utils::vk_check(vk::createInstance(&instance_info, nullptr, &instance));
+        instance = std::make_shared(context, instance_info)
     }
     void init_surface()
     {
@@ -223,23 +225,7 @@ private:
     }
     void init_gpu()
     {
-        uint32_t count {};
-        utils::vk_check(instance.enumeratePhysicalDevices(&count, nullptr));
-        phys_devices.resize(count);
-        utils::vk_check(
-            instance.enumeratePhysicalDevices(&count, phys_devices.data()));
 
-        for (const auto& device : phys_devices)
-        {
-            spdlog::info("Device {}: \ndeviceID: "
-                         "{}\nvendorID: {}\ndeviceType: "
-                         "{}\ndriverVersion: {}",
-                         device.getProperties().deviceName.data(),
-                         device.getProperties().deviceID,
-                         device.getProperties().vendorID,
-                         vk::to_string(device.getProperties().deviceType),
-                         device.getProperties().driverVersion);
-        }
         current_gpu = platform::device::gpu(phys_devices[0], surface, {});
 
         // Always request a graphics queue
@@ -336,9 +322,10 @@ private:
     std::vector<const char*> instance_layers {};
     std::vector<const char*> instance_ext {};
 
-    vk::Instance                      instance {};
-    vk::SurfaceKHR                    surface {};
-    std::shared_ptr<vk::raii::Device> logical_device {};
+    vk::raii::Context context;
+
+    std::unique_ptr<vk::raii::Instance>   instance {};
+    std::unique_ptr<vk::raii::SurfaceKHR> surface {};
 
     std::vector<const char*> requested_layers;
     std::vector<const char*> requested_ext;
@@ -346,6 +333,6 @@ private:
     std::vector<vk::PhysicalDevice> phys_devices;
     std::vector<vk::Queue>          graphics_queues;
     std::vector<vk::Queue>          compute_queues;
-    device::gpu                     current_gpu {};
+    rednerer::device::manager       manager_gpu;
 };
 } // namespace svl::platform::window

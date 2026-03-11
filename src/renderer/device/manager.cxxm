@@ -1,12 +1,49 @@
 module;
+#include <spdlog/spdlog.h>
 export module svl.renderer.device;
 
 import vulkan;
 import std;
 
-export namespace svl::renderer::device
+namespace svl::renderer::device
 {
-class manager
+class gpu
+{
+public:
+    gpu(vk::raii::PhysicalDevice& physical_device)
+        : pd(std::move(physical_device))
+    {
+        props = vk::raii::PhysicalDevice::getProperties2<
+            vk::PhysicalDeviceProperties2>(pd);
+        features =
+            vk::raii::PhysicalDevice::getFeatures2<vk::PhysicalDeviceFeatures2>(
+                pd);
+        mem_props = vk::raii::PhysicalDevice::getMemoryProperties2<
+            vk::PhysicalDeviceMemoryProperties2>(pd);
+    }
+    ~gpu() { device.destroy(); }
+
+    std::string get_name()
+    {
+        p = vk::StructureChain::get<vk::PhysicalDeviceProperties2>(props);
+        return p.properties.deviceName;
+    }
+
+    void create(const vk::DeviceCreateInfo& device_create_info)
+    {
+        device = vk::raii::Device(pd, device_create_info);
+    }
+
+private:
+    vk::StructureChain<vk::PhysicalDeviceProperties2>       props {};
+    vk::StructureChain<vk::PhysicalDeviceFeatures2>         features {};
+    vk::StructureChain<vk::PhysicalDeviceMemoryProperties2> mem_props {};
+
+    vk::raii::PhysicalDevice pd;
+    vk::raii::Device         device;
+};
+
+export class manager
 {
 public:
     manager()                      = delete;
@@ -14,75 +51,65 @@ public:
     ~manager()                     = default;
     void operator=(const manager&) = delete;
 
-    static void init(const vk::raii::Instance&   vk_instance,
-                     const vk::raii::SurfaceKHR& vk_surface,
-                     const std::vector&          requested_extensions)
+    static void init(const vk::raii::Instance&       vk_instance,
+                     const vk::raii::SurfaceKHR&     vk_surface,
+                     const std::vector<std::string>& requested_extensions)
     {
+        std::scoped_lock lock(mutex);
         if (instance)
         {
-            throw std::runtime_error("App already initialized");
+            throw std::runtime_error("Device Manager already initialized");
         }
         instance = new manager(vk_instance, vk_surface, requested_extensions);
     }
 
-    [[nodiscard]] static manager* get_instance() noexcept { return instance; }
+    [[nodiscard]] static const manager* get_instance() noexcept
+    {
+        return instance;
+    }
 
     [[nodiscard]] std::vector<std::string> get_avaliable() const noexcept
     {
-        return pd_names;
+        return gpus | std::views::keys;
     }
     void create(const std::string&          pd_name,
                 const vk::DeviceCreateInfo& device_create_info)
     {
-        auto it = std::find(pd_names.begin(), pd_names.end(), pd_name);
-
-        if (it == pd_names.end())
+        if (gpus.contains(pd_name))
         {
             throw std::invalid_argument(
                 std::format("Device with name {} not found.", pd_name));
         }
 
-        int index = std::distance(pd_names.begin(), it);
+        physical_devices[pd_name].create(device_create_info);
 
-        devices.push_back(
-            vk::raii::Device(physical_devices[index], device_create_info));
+        spdlog::info("Created vk::Device: {} {} ({}) - Vulkan {}",
+                     pd_properties[index].properties.deviceName.data(),
+                     pd_properties[index].properties.vendorID,
+                     pd_properties[index].properties.deviceID,
+                     pd_properties[index].properties.apiVersion);
     }
-    // void disable(const std::string& pd_name) {}
     // void remove(const std::string& pd_name) {}
 
 private:
-    explicit manager(const vk::raii::Instance&   vk_instance,
-                     const vk::raii::SurfaceKHR& vk_surface,
-                     const std::vector&          requested_extensions)
+    explicit manager(const vk::raii::Instance&       vk_instance,
+                     const vk::raii::SurfaceKHR&     vk_surface,
+                     const std::vector<std::string>& requested_extensions)
     {
-        physical_devices = vk::raii::PhysicalDevices(vk_instance);
+        vk::raii::PhysicalDevices physical_devices =
+            vk::raii::PhysicalDevices(vk_instance);
 
-        proeprty_chains =
-            std::views::transform(physical_devices,
-                                  &vk::raii::PhysicalDevice::getProperties2<
-                                      vk::PhysicalDeviceProperties2>);
-        pd_properties = std::views::transform(
-            proeprty_chains,
-            &vk::StructureChain::get<vk::PhysicalDeviceProperties2>);
-
-        pd_names = pd_properties |
-                   std::views::transform(
-                       &vk::PhysicalDeviceProperties2::properties::deviceName) |
-                   std::views::to<std::vector<std::string>>();
+        for (vk::raii::PhysicalDevice pd : physical_devices)
+        {
+            gpu g              = gpu(pd);
+            gpus[g.get_name()] = g;
+        }
     }
 
-    static manager*   instance = nullptr;
     static std::mutex mutex;
+    static manager*   instance = nullptr;
 
-    vk::raii::PhysicalDevice physical_devices {};
-
-    std::vector<vk::StructureChain<vk::PhysicalDeviceProperties2>>
-        proeprty_chains {};
-
-    std::vector<vk::PhysicalDeviceProperties2> pd_properties {};
-    std::vector<std::string>                   pd_names {};
-
-    std::vector<vk::raii::Device> devices;
+    std::unordered_map<std::string, gpu> gpus;
 };
 
 } // namespace svl::renderer::device
