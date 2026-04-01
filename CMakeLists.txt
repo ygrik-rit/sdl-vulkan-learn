@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 4.2 FATAL_ERROR)
 
-set(CMAKE_CXX_STANDARD 23) # c++26 cant analyzed by sonarcube
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -14,7 +14,7 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 # set(CMAKE_SKIP_BUILD_RPATH OFF)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
 
-set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "d0edc3af-4c50-42ea-a356-e2862fe7a444")
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "451f2fe2-a8a2-47c3-bc32-94786d8fc91b")
 set(CMAKE_CXX_MODULE_STD 1)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
@@ -33,7 +33,7 @@ project(
     LANGUAGES C CXX
 )
 
-if(NOT TARGET __CMAKE::CXX23)
+if(NOT 23 IN_LIST CMAKE_CXX_COMPILER_IMPORT_STD)
     message(
         FATAL_ERROR
         "For build this project needed cxx23 support or higher. Install clang 19+ and newer libc++"
@@ -64,6 +64,7 @@ target_compile_options(
         -Werror
         -Wpedantic
         -Wall
+        -Wno-c2y-extensions
         $<$<BOOL:${SVL_COVERAGE}>:
         -fprofile-instr-generate
         -fcoverage-mapping
