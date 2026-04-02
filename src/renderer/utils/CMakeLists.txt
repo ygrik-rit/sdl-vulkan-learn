@@ -9,7 +9,7 @@ target_sources(
 )
 target_link_libraries(
     renderer_utils
-    PRIVATE svl::base KTX::ktx Vulkan::HppModule
+    PRIVATE svl::base KTX::ktx volk::volk
 )
 
 add_library(svl::renderer::utils ALIAS renderer_utils)

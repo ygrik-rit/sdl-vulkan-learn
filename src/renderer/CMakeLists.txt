@@ -16,7 +16,7 @@ target_sources(
 target_link_libraries(
     renderer
     PRIVATE
-        Vulkan::HppModule
+        volk::volk
         glslang::SPIRV
         glslang::glslang
         glslang::glslang-default-resource-limits

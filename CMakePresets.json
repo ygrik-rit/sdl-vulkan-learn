@@ -11,11 +11,7 @@
             "name": "base",
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/.build/${presetName}",
-            "installDir": "${sourceDir}/.install/${presetName}",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++"
-            }
+            "installDir": "${sourceDir}/.install/${presetName}"
         }
     ],
     "buildPresets": [

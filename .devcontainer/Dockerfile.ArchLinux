@@ -4,8 +4,7 @@ ENV GIT_CONFIG_PARAMETERS="'safe.directory=*'"
 
 RUN pacman -Suy --noconfirm cmake clang ninja mold libc++ git \
     dotnet-runtime dotnet-sdk nodejs \
-    python wget zsh pipewire mesa-utils \
-    sstp-client
+    python wget zsh pipewire mesa-utils
 
 ARG USERNAME=svl
 ARG USER_UID=1000

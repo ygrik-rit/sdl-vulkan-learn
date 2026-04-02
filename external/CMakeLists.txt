@@ -16,16 +16,9 @@ add_subdirectory(SPIRV-Tools EXCLUDE_FROM_ALL SYSTEM)
 set(ALLOW_EXTERNAL_SPIRV_TOOLS ON)
 set(GLSLANG_TESTS OFF)
 set(ENABLE_GLSLANG_BINARIES OFF)
-add_subdirectory(Vulkan-Hpp/glslang EXCLUDE_FROM_ALL SYSTEM)
+add_subdirectory(glslang EXCLUDE_FROM_ALL SYSTEM)
 
-set(VULKAN_HPP_BUILD_WITH_LOCAL_VULKAN_HPP ON)
-set(VULKAN_HPP_NO_CONSTRUCTORS ON)
-set(VULKAN_HPP_BUILD_CXX_MODULE ON)
-add_subdirectory(Vulkan-Hpp EXCLUDE_FROM_ALL SYSTEM)
-target_compile_definitions(
-    VulkanHppModule
-    PRIVATE VULKAN_HPP_CXX_MODULE_EXPERIMENTAL_WARNING
-)
+add_subdirectory(Vulkan-Headers EXCLUDE_FROM_ALL SYSTEM)
 
 set(VOLK_NAMESPACE ON)
 set(VOLK_STATIC_DEFINES)
@@ -47,7 +40,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 endif()
 add_subdirectory(volk)
 # Hack for find vulkan header
-target_link_libraries(volk PRIVATE Vulkan::HppModule)
+target_link_libraries(volk PRIVATE Vulkan::Headers)
 
 # ios support https://github.com/gabime/spdlog/issues/2884
 add_subdirectory(spdlog EXCLUDE_FROM_ALL SYSTEM)
