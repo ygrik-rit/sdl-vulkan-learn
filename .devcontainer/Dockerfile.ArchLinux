@@ -1,0 +1,22 @@
+FROM archlinux:multilib-devel
+
+ENV GIT_CONFIG_PARAMETERS="'safe.directory=*'"
+
+RUN pacman -Suy --noconfirm cmake clang ninja mold libc++ git \
+    dotnet-runtime dotnet-sdk nodejs \
+    python wget zsh pipewire mesa-utils \
+    sstp-client
+
+ARG USERNAME=svl
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
+
+USER $USERNAME
+WORKDIR /home/$USERNAME
+
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
