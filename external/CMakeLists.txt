@@ -1,3 +1,5 @@
+svl_check_git_submodules()
+
 set(SDL_STATIC OFF)
 set(SDL_SHARED ON)
 set(SDL_TESTS OFF)
