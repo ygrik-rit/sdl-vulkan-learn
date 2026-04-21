@@ -4,6 +4,8 @@
 
 #include "svl_config.hxx"
 
+#include <meta>
+
 import svl.renderer.utils;
 
 import std;
