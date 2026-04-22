@@ -20,8 +20,6 @@ set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-svl_setup_global_compiler()
-
 project(
     sdl-vulkan-learn
     VERSION 0.0.4.0
@@ -33,7 +31,7 @@ project(
 if(NOT 23 IN_LIST CMAKE_CXX_COMPILER_IMPORT_STD)
     message(
         FATAL_ERROR
-        "For build this project needed cxx23 support or higher. Install clang 19+ and newer libc++"
+        "For build this project needed cxx23 support or higher. Install clang 19+ and newer libc++ or gcc 15+"
     )
 endif()
 
@@ -41,6 +39,9 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(functions REQUIRED)
 find_package(options REQUIRED)
+find_package(compiler REQUIRED)
+
+svl_setup_global_compiler()
 
 configure_file(
     ${CMAKE_SOURCE_DIR}/src/svl_config.hxx.in
@@ -55,30 +56,11 @@ target_compile_definitions(
     svl_base
     INTERFACE $<$<CONFIG:Debug>:SVL_DEBUG> $<$<PLATFORM_ID:Linux>:SVL_LINUX>
 )
-target_compile_options(
-    svl_base
-    INTERFACE
-        -Werror
-        -Wpedantic
-        -Wall
-        -Wno-c2y-extensions
-        $<$<BOOL:${SVL_COVERAGE}>:
-        -fprofile-instr-generate
-        -fcoverage-mapping
-        >
-)
-target_link_options(
-    svl_base
-    INTERFACE
-        $<$<BOOL:${SVL_COVERAGE}>:
-        -fprofile-instr-generate
-        -fcoverage-mapping
-        >
-)
 target_include_directories(
     svl_base
     INTERFACE ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_LIST_DIR}/src
 ) # svl_config.hxx
+svl_setup_target_compiler(svl_base)
 add_library(svl::base ALIAS svl_base)
 
 add_subdirectory(external)
