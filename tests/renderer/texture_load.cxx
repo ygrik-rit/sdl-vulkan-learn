@@ -2,8 +2,6 @@
 #include <libassert/assert-catch2.hpp>
 #include <spdlog/spdlog.h>
 
-#include "svl_config.hxx"
-
 import svl.renderer.utils;
 
 import std;

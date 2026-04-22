@@ -1,5 +1,3 @@
-svl_check_git_submodules()
-
 set(SDL_STATIC OFF)
 set(SDL_SHARED ON)
 set(SDL_TESTS OFF)
@@ -9,7 +7,7 @@ set(SDL_DISABLE_INSTALL ON)
 add_subdirectory(SDL EXCLUDE_FROM_ALL SYSTEM)
 
 # Use our built of SPIRV-Tools instead system, for avoid
-# stdlib missmatch
+# stdlib mismatch
 add_subdirectory(SPIRV-Headers EXCLUDE_FROM_ALL SYSTEM)
 set(SPIRV_SKIP_EXECUTABLES ON)
 set(SPIRV_SKIP_TESTS ON)
