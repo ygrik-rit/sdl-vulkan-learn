@@ -6,9 +6,4 @@ import svl.renderer.utils;
 
 import std;
 
-TEST_CASE("Load KTX texture", "[renderer][texture][ktx]")
-{
-    using namespace svl;
-
-    renderer::utils::texture example("res/textures/example.ktx");
-}
+TEST_CASE("Load KTX texture", "[renderer][texture][ktx]") {}

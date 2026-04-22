@@ -1,36 +1,6 @@
 module;
-#include <cstdlib>
-#include <spdlog/spdlog.h>
-
-#include "svl_config.hxx"
 export module svl;
-
-import svl.platform;
-export import svl.renderer;
 
 export namespace svl
 {
-int run()
-{
-    using namespace svl;
-    try
-    {
-        platform::window::context core_window(
-            constants::appdata::title, 480, 360, 0);
-
-        core_window.create({}, { "VK_KHR_wayland_surface", "VK_KHR_surface" });
-
-        while (core_window.is_running())
-        {
-            core_window.poll_event();
-        }
-    }
-    catch (platform::window::window_error err)
-    {
-        spdlog::error("Cant init windows: {}", err.what());
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
-}
 } // namespace svl

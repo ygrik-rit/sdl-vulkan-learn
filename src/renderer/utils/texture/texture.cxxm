@@ -1,59 +1,6 @@
 module;
-#include <ktx.h>
 export module svl.renderer.utils:texture;
-
-import vulkan;
 
 export namespace svl::renderer::utils
 {
-
-class texture final
-{
-public:
-    texture(std::filesystem::path texture_path)
-        : path(std::move(texture_path))
-    {
-        KTX_error_code result = ktxTexture2_CreateFromNamedFile(
-            path.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktexture);
-
-        if (result != KTX_SUCCESS)
-        {
-            throw std::runtime_error("failed to load ktx texture image!");
-        }
-
-        tex_width        = ktexture->baseWidth;
-        tex_height       = ktexture->baseHeight;
-        image_size       = ktexture->dataSize;
-        ktx_texture_data = ktexture->pData;
-
-        texture_format = static_cast<vk::Format>(ktexture->vkFormat);
-
-        // utils::create_buffer(image_size,
-        //                      vk::BufferUsageFlagBits::eTransferSrc,
-        //                      vk::MemoryPropertyFlagBits::eHostVisible |
-        //                          vk::MemoryPropertyFlagBits::eHostCoherent,
-        //                      staging_buffer,
-        //                      staging_buffer_memory);
-
-        // void* data = staging_buffer_memory.mapMemory(0, image_size);
-        // std::memcpy(data, ktx_texture_data, image_size);
-        // staging_buffer_memory.unmapMemory();
-
-        ktxTexture2_Destroy(ktexture);
-    }
-
-private:
-    std::filesystem::path path = {};
-
-    ktxTexture2* ktexture = {};
-
-    uint32_t     tex_width        = {};
-    uint32_t     tex_height       = {};
-    ktx_size_t   image_size       = {};
-    ktx_uint8_t* ktx_texture_data = {};
-
-    vk::Format             texture_format {};
-    vk::raii::Buffer       staging_buffer        = { {} };
-    vk::raii::DeviceMemory staging_buffer_memory = { {} };
-};
 } // namespace svl::renderer::utils

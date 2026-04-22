@@ -1,4 +1,2 @@
 module;
 export module svl.platform;
-
-export import svl.platform.window;
